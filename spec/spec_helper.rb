@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require 'rubygems'
+require 'pp'
 
 require File.dirname(__FILE__) + '/../lib/decider.rb'
 
