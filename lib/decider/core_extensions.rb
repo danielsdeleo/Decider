@@ -5,6 +5,8 @@ module Math
   # Variance of a population. If computing the variance of the entire 
   # population, defaults are fine. If computing the variance of a sample of the
   # population, enable the "Bessel Correction" with <tt>:sample => true</tt>
+  # Algorithm: Knuth/Welford 
+  # http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#On-line_algorithm
   def variance(population, opts={:sample=>false})
     n, mean, s = 0, 0.0, 0.0
     population.each do |x|
