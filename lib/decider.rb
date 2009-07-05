@@ -5,3 +5,5 @@ end
 
 require DECIDER_ROOT + "/decider/token_selector"
 require DECIDER_ROOT + "/decider/training_set"
+require DECIDER_ROOT + "decider/token"
+require DECIDER_ROOT + "decider/core_extensions"
