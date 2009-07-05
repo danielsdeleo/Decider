@@ -4,4 +4,4 @@ unless defined?(DECIDER_ROOT)
 end
 
 require DECIDER_ROOT + "/decider/token_selector"
-require DECIDER_ROOT + "/decider/vectorizer"
+require DECIDER_ROOT + "/decider/training_set"
