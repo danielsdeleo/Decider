@@ -1,6 +1,15 @@
 # encoding: UTF-8
 require File.dirname(__FILE__) + "/../spec_helper"
 
+## Find a way to make an API like this work! ##
+#t = TokenSelector.new
+#t.transforms do |doc|
+#  doc.explode_uri
+#  doc.character_wise_ngrams(:n => 3)
+#  doc.token_wise_ngrams(:n => 2)
+#end
+#
+
 describe TokenSelector::BasePaths do
   
   before(:each) do
