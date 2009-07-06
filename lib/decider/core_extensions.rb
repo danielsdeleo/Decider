@@ -33,3 +33,13 @@ module Math
   module_function :variance, :avg, :stddev
   
 end
+
+# Ruby 1.9 compatibility. Nice that String isn't fake enumerable, but
+# can't use object.respond_to? :each to test b/c of Ruby 1.8.x
+unless "".respond_to?(:to_a)
+  ::String.class_eval do
+    def to_a
+      [self]
+    end
+  end
+end
