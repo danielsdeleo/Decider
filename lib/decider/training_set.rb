@@ -2,19 +2,32 @@
 
 module Decider
   class TrainingSet
-    attr_reader :documents
+    attr_reader :documents, :new_document_callback
     
-    def initialize
+    def initialize(&block)
       @tokens = {}
       @documents = []
+      if block_given?
+        @new_document_callback = block 
+      else
+        @new_document_callback = lambda do |doc|
+          doc.plain_text
+          doc.stem
+        end
+      end
     end
     
-    def <<(group_of_tokens)
+    def tokenize(&block)
+      @new_document_callback = block
+    end
+    
+    def <<(document_string)
       invalidate_cache
       
-      @documents << Document.new(self, group_of_tokens.to_a)
+      doc = new_document(document_string)
+      @documents << doc
       
-      group_of_tokens.to_a.each do |token|
+      doc.tokens.each do |token|
         if @tokens.has_key?(token)
           @tokens[token].increment
         else
@@ -96,27 +109,18 @@ module Decider
     
     private
     
+    def new_document(string)
+      doc = Document.new(self, string)
+      new_document_callback.call(doc)
+      doc
+    end
+    
     def invalidate_cache
       @token_values = nil
       @token_count = nil
       @document_score_stddev = nil
       @anomaly_score_of_tokens = nil
       @avg_document_probability = nil
-    end
-    
-    public
-    
-    class Document
-      attr_reader :training_set, :tokens
-
-      def initialize(training_set, *tokens)
-        @training_set, @tokens = training_set, tokens.flatten
-      end
-      
-      def probability
-        @training_set.probability_of_tokens(@tokens)
-      end
-
     end
     
   end

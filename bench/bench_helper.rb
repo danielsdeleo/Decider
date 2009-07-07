@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require "benchmark"
+require "rubygems"
 require File.dirname(__FILE__) + '/../lib/decider'
 
 BENCH_DIR = File.dirname(__FILE__)

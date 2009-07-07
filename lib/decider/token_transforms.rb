@@ -4,11 +4,11 @@ module Decider
   module TokenTransforms
     
     def plain_text
-      self.domain_tokens = raw.split(/(?:[\s]|\.|\,|\;|\:|"|')+/)
+      domain_tokens(raw.split(/(?:[\s]|\.|\,|\;|\:|"|')+/))
     end
     
     def uri
-      self.domain_tokens = raw.split(/(?:\&|\?|\\\\|\\|\/\/|\/|\=|\[|\]|\.\.|\.)/)
+      domain_tokens(raw.split(/(?:\&|\?|\\\\|\\|\/\/|\/|\=|\[|\]|\.\.|\.)/))
     end
     
     def character_ngrams(opts={:n=>2})
@@ -31,7 +31,7 @@ module Decider
       domain_tokens.each do |token| 
         tokens_sans_stopwords << token unless stopword_list.include?(token)
       end
-      self.domain_tokens = tokens_sans_stopwords
+      domain_tokens(tokens_sans_stopwords)
     end
     
     private
@@ -43,28 +43,6 @@ module Decider
         ngrams << word[i, ngram_size]
       end
       ngrams
-    end
-    
-  end
-  
-  # Merge this with document class when done...
-  class Doc
-    include TokenTransforms
-    
-    attr_reader :raw, :additional_tokens
-    attr_accessor :domain_tokens
-    
-    def initialize(raw_text)
-      @raw = raw_text
-      @domain_tokens, @additional_tokens = [], []
-    end
-    
-    def push_additional_tokens(tokens)
-      @additional_tokens += tokens.to_a
-    end
-    
-    def tokens
-      @domain_tokens + @additional_tokens
     end
     
   end
