@@ -122,6 +122,11 @@ describe TrainingSet do
       prob.should == ((2.0/ 20.0) + (2.0/ 20.0) + (0.0 / 20.0)) / 3.0
     end
     
+    it "should give the probabilty of a document" do
+      prob = @training_set.probability_of_document("bullet.gif bullet2.gif unknownToken")
+      prob.should == ((2.0/ 20.0) + (2.0/ 20.0) + (0.0 / 20.0)) / 3.0
+    end
+    
     it "should compute the probabilities of all documents" do
       expected = TOKENS.map { |t| @training_set.probability_of_token(t) }.sort
       @training_set.probabilities_of_documents.sort.should == expected

@@ -73,6 +73,10 @@ module Decider
       (tokens.inject(0) { |sum, token| sum + probability_of_token(token) }) / tokens.count.to_f
     end
     
+    def probability_of_document(document_string)
+      probability_of_tokens new_document(document_string).tokens
+    end
+    
     def total_tokens
       @token_count ||= @tokens.inject(0) { |sum, key_val| sum + key_val.last.count }
     end
