@@ -10,9 +10,9 @@ describe TokenTransforms do
   context "converting raw tokens to domain tokens" do
     
     it "should convert basic text to tokens using {WS . , ; : \" '} as the delimeter set" do
-      doc = Document.new(@ts, "the original.text,with;some:extra\"delimiters'yo")
+      doc = Document.new(@ts, "the original.text,with;some:extra\"delimiters'amirite?yo")
       doc.plain_text
-      doc.domain_tokens.should == %w{ the original text with some extra delimiters yo}
+      doc.domain_tokens.should == %w{ the original text with some extra delimiters amirite yo}
     end
     
     it "should convert URIs to tokens using {& ? \\\\ \\ \/\/ \/ = [ ] .. .} as the delimeter set" do

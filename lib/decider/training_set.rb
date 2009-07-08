@@ -4,6 +4,21 @@ module Decider
   class TrainingSet
     attr_reader :documents, :new_document_callback
     
+    # Creates a new training set. Generally, one training set object corresponds
+    # to a single class of document, i.e., spam or ham.
+    # Documents given for training (<<) or analysis
+    # will be processed according to the given block. For example:
+    # 
+    #   ts = TrainingSet.new do |doc|
+    #     doc.plain_text
+    #     doc.stem
+    #     doc.ngrams(3)
+    #   end
+    #
+    # The methods called on doc are defined in TokenTransforms. Your own
+    # tokenization methods can be created in a module and loaded with 
+    # <tt>Document.custom_transforms(YourOwnTokenTransforms)</tt>
+    #
     def initialize(&block)
       @tokens = {}
       @documents = []
@@ -21,6 +36,7 @@ module Decider
       @new_document_callback = block
     end
     
+    # Uses +document_string+ as a training document
     def <<(document_string)
       invalidate_cache
       
@@ -73,6 +89,8 @@ module Decider
       (tokens.inject(0) { |sum, token| sum + probability_of_token(token) }) / tokens.count.to_f
     end
     
+    # Gives the probability that the document given by +document_string+ belongs
+    # to this set (document class)
     def probability_of_document(document_string)
       probability_of_tokens new_document(document_string).tokens
     end
@@ -107,11 +125,17 @@ module Decider
       end
     end
     
-    def hapax_occurrence_value
-      0
+    # Gives the number of Standard Deviations that +document_string+ is, 
+    # probability-wise, from the average. Experimental, YMMV.
+    def anomaly_score_of_document(document_string)
+      anomaly_score_of(new_document(document_string).tokens)
     end
     
     private
+    
+    def hapax_occurrence_value
+      0
+    end
     
     def new_document(string)
       doc = Document.new(self, string)

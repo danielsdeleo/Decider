@@ -155,7 +155,12 @@ describe TrainingSet do
     it "should compute an ``anomaly score'' == {0 if prob - avg > 0; #of std devs if prob - avg < 0} " do
       expected = @training_set.avg_document_probability / @training_set.document_score_stddev
       @training_set.anomaly_score_of(["unknown_token"]).should be_close(expected, 0.00000001)
-      @training_set.anomaly_score_of(["bullet.gif"]).should == 0
+      @training_set.anomaly_score_of(["bullet.gif"]).should == 0.0
+    end
+    
+    it "should create a document from text and compute its ``anomaly_score''" do
+      @training_set.should_receive(:anomaly_score_of).with(%w{foo bar baz}).and_return(0.23)
+      @training_set.anomaly_score_of_document("foo bar baz").should == 0.23
     end
     
     it "should memoize the results of #anomaly_score_of(tokens)" do
