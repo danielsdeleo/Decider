@@ -13,3 +13,12 @@ require DECIDER_ROOT + "decider/stopwords"
 require DECIDER_ROOT + "decider/token_transforms"
 require DECIDER_ROOT + "decider/document"
 require DECIDER_ROOT + "decider/classifier"
+
+module Decider
+  extend self
+  
+  # Convenience method for Classifier.new
+  def classifier(*args, &block)
+    Classifier.new(*args, &block)
+  end
+end
