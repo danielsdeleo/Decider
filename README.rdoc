@@ -1,0 +1,2 @@
+= Decider
+*Yet Another Ruby Machine Learning Library*
