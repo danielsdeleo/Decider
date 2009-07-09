@@ -42,13 +42,18 @@ describe TokenTransforms do
     end
     
     it "should generate character-wise n-grams" do
-      @doc.character_ngrams(:n => 2)
+      @doc.character_ngrams(2)
       @doc.additional_tokens.should == %w{ th he or ri ig gi in na al te ex xt}
     end
     
     it "should generate token-wise n-grams" do
-      @doc.ngrams(:n => 2)
+      @doc.ngrams(2)
       @doc.additional_tokens.should == ["the original", "original text"]
+    end
+    
+    it "should generate multiple lengths of ngrams if given a range or array" do
+      @doc.ngrams(2..3)
+      @doc.additional_tokens.should == ["the original", "original text", "the original text"]
     end
     
     it "should stem words with stemmer gem" do
