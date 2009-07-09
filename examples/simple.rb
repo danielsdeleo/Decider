@@ -15,9 +15,8 @@ p c.spam?("viagra for huge hot dog")
 puts "term frequencies:"
 puts "spam: #{c.spam.term_frequency.inspect}"
 puts "ham:  #{c.ham.term_frequency.inspect}"
-#p c.probabilities_for_token("women")
-#p c.probabilities_for_token("code")
-#p c.probabilities_for_tokens(["lets", "write", "code", "and", "drink", "some", "beer"])
+puts ""
 p c.scores("let's write code and drink some beers")
+# => {:spam=>0.0, :ham=>5.0}
 p c.classify("let's write code and drink some beers")
 # => :ham
