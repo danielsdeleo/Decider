@@ -1,5 +1,5 @@
 = Decider
-**Yet Another Ruby Machine Learning Library**
+<b>Yet Another Ruby Machine Learning Library</b>
 
 == Getting Started
 
