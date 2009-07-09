@@ -57,6 +57,12 @@ module Decider
       @token_values ||= @tokens.keys
     end
     
+    def term_frequency
+      term_frequency = {}
+      tokens.each { |token| term_frequency[token] = count_of(token) }
+      term_frequency
+    end
+    
     def index_of(token)
       if token = @tokens[token]
         token.index

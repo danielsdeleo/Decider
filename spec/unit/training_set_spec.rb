@@ -90,10 +90,10 @@ describe TrainingSet do
       menutree.js
       menutree.js
       plus.gif
-      spacer.gif
+      minus.gif
       minus.gif
       spacer.gif
-      minus.gif
+      spacer.gif
       calendar.do
       contact.do 
       type 
@@ -106,6 +106,13 @@ describe TrainingSet do
       doc_init_proc = lambda { |doc| doc }
       @training_set.stub!(:new_document_callback).and_return(doc_init_proc)
       TOKENS.each { |token| @training_set << token }
+    end
+    
+    it "should give a term frequency hash" do
+      expected = {'bullet.gif'=>2,'bullet1.gif'=>2,'bullet2.gif'=>2,'AQV3N2.jpg'=>2,"menutree.js"=>3,
+                  'plus.gif'=>1,'minus.gif'=>2,'spacer.gif'=>2,'calendar.do'=>1,'contact.do'=>1,"type"=>1,
+                  'technical'=>1}
+      @training_set.term_frequency.should == expected
     end
     
     it "should give the probability of a token in the set" do
