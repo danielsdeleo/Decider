@@ -54,6 +54,15 @@ module Decider
       @classes.keys
     end
     
+    # Gives the probabilites for +document_text+ to be in each class.
+    def scores(document_text)
+      results = {}
+      @classes.each do |name, training_set|
+        results[name] = training_set.probability_of_document(document_text)
+      end
+      results
+    end
+    
     # Classifies +document_text+ based on previous training.
     def classify(document_text)
       result = {}

@@ -49,6 +49,12 @@ describe Classifier do
         @classifier.so_last_year.should_receive(:probability_of_document).with("java php").and_return(1)
         @classifier.classify("java php").should == :so_last_year
       end
+      
+      it "should give the raw scores" do
+        @classifier.deck.should_receive(:probability_of_document).with("java php").and_return(0)
+        @classifier.so_last_year.should_receive(:probability_of_document).with("java php").and_return(1)
+        @classifier.scores("java php").should == {:deck => 0, :so_last_year => 1}
+      end
     
     end
     
