@@ -3,6 +3,17 @@
 module Decider
   module TokenTransforms
     
+    class << self
+      
+      def default_transform
+        lambda do |doc|
+          doc.plain_text
+          doc.stem
+        end
+      end
+      
+    end
+    
     # Splits the raw text of a document using { whitespace . , : ; " ' ? } as
     # the delimeter set.
     def plain_text

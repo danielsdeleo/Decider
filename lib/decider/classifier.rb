@@ -4,6 +4,9 @@ module Decider
   class Classifier
     attr_reader :algorithm, :classes
     
+    include Bayes
+    include DocumentHelper
+    
     # Creates a new classifier of type +algorithm+ with one or more classes.
     # Currently, only a Bayesian algorithm is implemented, so the +algorithm+
     # term is actually meaningless.
@@ -41,35 +44,32 @@ module Decider
     def initialize(algorithm, *classes, &block)
       @algorithm = algorithm
       @classes = {}
+      self.document_callback = block if block_given?
       classes.each do |klass|
-        ts = block_given? ? TrainingSet.new(&block) : TrainingSet.new()
-        @classes[klass.to_sym] = ts
+        @classes[klass.to_sym] = TrainingSet.new(&document_callback)
         define_accessor_for(klass)
         define_predicate_for(klass)
       end
     end
     
     # Gives the names of the document classes defined in the constructor.
-    def classes
+    def class_names
       @classes.keys
     end
     
     # Gives the probabilites for +document_text+ to be in each class.
     def scores(document_text)
-      results = {}
-      @classes.each do |name, training_set|
-        results[name] = training_set.probability_of_document(document_text)
-      end
-      results
+      probabilities_for_tokens(new_document(document_text).tokens)
+      #results = {}
+      #@classes.each do |name, training_set|
+      #  results[name] = training_set.probability_of_document(document_text)
+      #end
+      #results
     end
     
     # Classifies +document_text+ based on previous training.
     def classify(document_text)
-      result = {}
-      @classes.each do |name, training_set|
-        result[name] = training_set.probability_of_document(document_text)
-      end
-      result.inject { |memo, key_val| key_val.last > memo.last ? key_val : memo }.first
+      scores(document_text).inject { |memo, key_val| key_val.last > memo.last ? key_val : memo }.first
     end
     
     # Single-class classifiers have experimental anomaly detection. If +document_text+

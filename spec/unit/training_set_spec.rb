@@ -29,7 +29,7 @@ describe TrainingSet do
     
     before do
       doc_init_proc = lambda { |doc| doc }
-      @training_set.stub!(:new_document_callback).and_return(doc_init_proc)
+      @training_set.stub!(:document_callback).and_return(doc_init_proc)
       Document.stub!(:new).and_return { |ts, text| DocMock.new(ts, text)}
     end
     
@@ -104,7 +104,7 @@ describe TrainingSet do
     before(:each) do
       Document.stub!(:new).and_return { |ts, text| DocMock.new(ts, text)}
       doc_init_proc = lambda { |doc| doc }
-      @training_set.stub!(:new_document_callback).and_return(doc_init_proc)
+      @training_set.stub!(:document_callback).and_return(doc_init_proc)
       TOKENS.each { |token| @training_set << token }
     end
     
@@ -193,18 +193,13 @@ describe TrainingSet do
       end
       @doc.should_receive(:foo)
       @doc.should_receive(:bar)
-      @training_set.new_document_callback.call(@doc)
+      @training_set.document_callback.call(@doc)
     end
     
     it "should call the block when creating a document" do
-      @doc.should_receive(:foo)
-      @training_set.tokenize { |doc| doc.foo }
-      @training_set << "some text"
-    end
-    
-    it "should have a default callback suitable for plaintext" do
-      @doc.should_receive(:plain_text)
-      @doc.should_receive(:stem)
+      document = mock("mock doc")
+      @training_set.should_receive(:new_document).with("some text").and_return(document)
+      document.should_receive(:tokens).and_return([])
       @training_set << "some text"
     end
     

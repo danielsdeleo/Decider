@@ -2,7 +2,8 @@
 
 module Decider
   class TrainingSet
-    attr_reader :documents, :new_document_callback
+    attr_reader :documents #, :new_document_callback
+    include DocumentHelper
     
     # Creates a new training set. Generally, one training set object corresponds
     # to a single class of document, i.e., spam or ham.
@@ -23,17 +24,12 @@ module Decider
       @tokens = {}
       @documents = []
       if block_given?
-        @new_document_callback = block 
-      else
-        @new_document_callback = lambda do |doc|
-          doc.plain_text
-          doc.stem
-        end
+        self.document_callback = block
       end
     end
     
     def tokenize(&block)
-      @new_document_callback = block
+      self.document_callback= block
     end
     
     # Uses +document_string+ as a training document
@@ -141,12 +137,6 @@ module Decider
     
     def hapax_occurrence_value
       0
-    end
-    
-    def new_document(string)
-      doc = Document.new(self, string)
-      new_document_callback.call(doc)
-      doc
     end
     
     def invalidate_cache

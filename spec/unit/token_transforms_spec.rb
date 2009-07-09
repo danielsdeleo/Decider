@@ -7,6 +7,17 @@ describe TokenTransforms do
     @ts = mock("TrainingSet")
   end
   
+  context "providing the default token transform" do
+    
+    it "should treat docs as plain text and stem them" do
+      doc = mock("document")
+      doc.should_receive(:plain_text)
+      doc.should_receive(:stem)
+      TokenTransforms.default_transform.call(doc)
+    end
+    
+  end
+  
   context "converting raw tokens to domain tokens" do
     
     it "should convert basic text to tokens using {WS . , ; : \" '} as the delimeter set" do
