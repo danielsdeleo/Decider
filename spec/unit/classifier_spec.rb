@@ -47,12 +47,12 @@ describe Classifier do
     end
     
     it "should classify documents" do
-      @classifier.should_receive(:probabilities_for_tokens).and_return({:so_last_year => 1, :deck => 0})
+      @classifier.should_receive(:bayesian_scores_for_tokens).and_return({:so_last_year => 1, :deck => 0})
       @classifier.classify("java php").should == :so_last_year
     end
     
     it "should give the raw scores" do
-      @classifier.should_receive(:probabilities_for_tokens).and_return({:so_last_year => 1, :deck => 0})
+      @classifier.should_receive(:bayesian_scores_for_tokens).and_return({:so_last_year => 1, :deck => 0})
       @classifier.scores("java php").should == {:deck => 0, :so_last_year => 1}
     end
   

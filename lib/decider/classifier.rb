@@ -59,7 +59,7 @@ module Decider
     
     # Gives the probabilites for +document_text+ to be in each class.
     def scores(document_text)
-      probabilities_for_tokens(new_document(document_text).tokens)
+      bayesian_scores_for_tokens(new_document(document_text).tokens)
       #results = {}
       #@classes.each do |name, training_set|
       #  results[name] = training_set.probability_of_document(document_text)
