@@ -19,3 +19,9 @@ describe ::Math, "with core extensions" do
     Math.stddev([1,1,0,0], :sample => true).should == Math.sqrt(1.0/3.0)
   end
 end
+
+describe Hash do
+  it "should map values based on the given block" do
+    {:a=>1,:b=>2,:c=>3}.map_vals {|v| v ** 2 }.should == {:a=>1,:b=>4,:c=>9}
+  end
+end

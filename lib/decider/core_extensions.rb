@@ -33,3 +33,16 @@ module Math
   module_function :variance, :avg, :stddev
   
 end
+
+
+class Hash
+  
+  def map_vals(&block)
+    return_hsh = {}
+    self.each do |key, val|
+      return_hsh[key] = block.call(val)
+    end
+    return_hsh
+  end
+  
+end
