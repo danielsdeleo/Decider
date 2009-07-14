@@ -60,11 +60,19 @@ module Decider
     # Gives the probabilites for +document_text+ to be in each class.
     def scores(document_text)
       bayesian_scores_for_tokens(new_document(document_text).tokens)
-      #results = {}
-      #@classes.each do |name, training_set|
-      #  results[name] = training_set.probability_of_document(document_text)
-      #end
-      #results
+    end
+    
+    # TODO: Caching
+    def scores_of_all_documents
+      result = Hash.new {|hsh,key| hsh[key]=[]}
+      classes.each do |class_name, training_set|
+        training_set.documents.each do |doc|
+          bayesian_scores_for_tokens(doc.tokens).each do |klass_name, score|
+            result[klass_name] << score
+          end
+        end
+      end
+      result
     end
     
     # Classifies +document_text+ based on previous training.

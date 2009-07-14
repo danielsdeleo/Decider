@@ -47,16 +47,16 @@ module Decider
     end
     
     def document_counts_by_class(klass)
-      result = Hash.new(0)
+      doc_counts = Hash.new(0)
       classes.each do |class_name, training_set|
         if class_name == klass
-          result[:this] = training_set.doc_count
+          doc_counts[:this] = training_set.doc_count
         else
-          result[:other] += training_set.doc_count
+          doc_counts[:other] += training_set.doc_count
         end
       end
-      result = result.each do |pseudoclass, doc_count|
-        result[pseudoclass] = 1 if doc_count == 0
+      doc_counts.map_vals do |doc_count|
+        doc_count == 0 ? 1 : doc_count
       end
     end
     
@@ -71,11 +71,9 @@ module Decider
     end
     
     def term_frequency_for_token(token)
-      result = {}
-      classes.each do |class_name, training_set|
-        result[class_name] = training_set.term_frequency[token] || 0
+      classes.map_vals do |training_set|
+        training_set.term_frequency[token] || 0
       end
-      result
     end
     
   end
