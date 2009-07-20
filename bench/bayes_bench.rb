@@ -1,95 +1,123 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
-require "logger"
 require File.dirname(__FILE__) + '/bench_helper'
 
 N = 10000
 #N = 100
 
-module TrainingSetBench
+module BayesBench
+  
+  class AccuracyStats
+    attr_accessor :training_ham, :training_spam, :test_ham, :test_spam, :false_positives, :false_negatives
+    
+    def report
+      msg = ""
+      msg << "## Training Messages ##\n"
+      msg << "#{training_ham + training_spam} messages total, #{training_spam} spam, #{training_ham} ham\n"
+      msg << "\n"
+      msg << "## Testing Messages ##\n"
+      total_test_msgs = test_ham + test_spam
+      msg << "#{total_test_msgs} total, #{test_spam} spam, #{test_ham} ham\n"
+      false_neg_percent = (false_negatives.to_f / test_spam.to_f) * 100.0
+      msg << "#{false_negatives} (#{false_neg_percent}%) messages wrongly marked ham (false negatives)\n"
+      false_pos_percent = (false_positives.to_f / test_ham.to_f) * 100.0
+      msg << "#{false_positives} (#{false_pos_percent}%) messages wrongly marked spam (false positives)\n"
+      total_errors = false_positives + false_negatives
+      accurracy = 100.0 - ((total_errors.to_f * 100.0)/ total_test_msgs.to_f)
+      msg << "Accuracy: #{accurracy}%\n"
+      msg << "#{total_errors} errors out of #{total_test_msgs} messages\n"
+      puts msg
+    end
+    
+  end
+  
   include BenchHelper::Logging
   
   extend self
   
-  def training_set_for_indexing_test
-    log "loading training set ``word_list'' "
-    training_set = Decider::TrainingSet.new
-    IO.readlines(BENCH_DIR + "/word_list").each do |line|
-      training_set << line.chomp
-    end
-    training_set
-  end
-  
-  def token_test_set(training_set, opts={})
-    test_set = []
-    training_set_size = training_set.tokens.count
-    number_of_tokens = opts[:n] || 10000
-    log "generating test set of #{number_of_tokens} tokens"
-    number_of_tokens.times do |i|
-      if i % 2 == 1
-        test_set << training_set.tokens[rand(training_set_size)]
-      else
-        test_set << "foobarbaz" # assumed not in training set
+  def fail_unless_sa_corpus_available
+    dirs = %w{easy_ham easy_ham_2 spam spam_2}.map { |subdir| BENCH_DIR + "/fixtures/" }
+    dirs.each do |dir|
+      unless File.exist?(dir)
+        fail_msg = "You need the Spam Assasin corpus to run the benchmark.\n\n" +
+        IO.read(BENCH_DIR + "/fixtures/README") 
+        fail(fail_msg)
       end
     end
-    log "test set created"
-    test_set
   end
   
-  def vector_test_set(training_set, opts={})
-    test_set = []
-    number_of_token_groups = opts[:n] || 10000
-    size_of_token_groups = opts[:tokens] || 10
-    log "generating test set of #{number_of_token_groups} token groups " + 
-    "with #{size_of_token_groups} tokens each"
-    silently do
-      number_of_token_groups.times do
-        test_set << token_test_set(training_set, :n => size_of_token_groups)
+  def preload_data
+    dirs = {:training_ham => "easy_ham", :training_spam => "spam", :test_ham => "easy_ham_2", :test_spam => "spam_2"}
+    @data = {}
+    dirs.each do |key, dir|
+      @data[key] = []
+      Dir.glob(BENCH_DIR + "/fixtures/#{dir}/*").each do |email|
+        @data[key] << IO.read(email)
       end
     end
-    log "test set created"
-    test_set
+    @accuracy_stats = AccuracyStats.new
+    @accuracy_stats.training_ham = @data[:training_ham].length
+    @accuracy_stats.training_spam = @data[:training_spam].length
+    @accuracy_stats.test_ham = @data[:test_ham].length
+    @accuracy_stats.test_spam = @data[:test_spam].length
+  end
+  
+  def train_on_spam(classifier)
+    @data[:training_spam].each do |msg|
+      classifier.spam << msg
+    end
+  end
+  
+  def train_on_ham(classifier)
+    @data[:training_ham].each do |msg|
+      classifier.ham << msg
+    end
+  end
+  
+  def test_spam(classifier)
+    false_negatives = 0
+    @data[:test_spam].each do |msg|
+      false_negatives += 1 unless classifier.spam?(msg)
+    end
+    @accuracy_stats.false_negatives = false_negatives
+  end
+  
+  def test_ham(classifier)
+    false_positives = 0
+    @data[:test_spam].each do |msg|
+      false_positives += 1 unless classifier.ham?(msg)
+    end
+    @accuracy_stats.false_positives = false_positives
+  end
+  
+  def print_report
+    @accuracy_stats.report
   end
   
 end
 
-TSB = TrainingSetBench
-#TSB.debugging_on
+BB = BayesBench
+BB.fail_unless_sa_corpus_available
+BB.preload_data
 
-training_set = TSB.training_set_for_indexing_test
-token_test_set = TSB.token_test_set(training_set, :n => N)
-vector_test_set = TSB.vector_test_set(training_set, :n => N)
-statistical_test_set = vector_test_set.dup
+classifier = Decider.classifier(:bayes, :spam, :ham) do |doc|
+  doc.plain_text
+  #doc.ngrams(2)
+  #doc.stem
+end
 
-TSB.log "Running TrainingSet Benchmarks for #{N.to_s} inputs"
 Benchmark.bm(18) do |bm|
-  bm.report("index") do
-    N.times do
-      token_to_find = token_test_set.pop
-      index = training_set.index_of(token_to_find)
-      TSB.debug "index of token ``#{token_to_find}'' is ##{index}"
-    end
-  end
   
-  bm.report("vectors") do
-    N.times do
-      tokens_to_vectorize = vector_test_set.pop
-      vector = training_set.vectorize(tokens_to_vectorize)
-      # absurd output.
-      #TSB.debug("vector representation of #{tokens_to_vectorize.inspect} is #{vector}")
-    end
+  bm.report("Train Classifier") do
+    BB.train_on_ham(classifier)
+    BB.train_on_spam(classifier)
   end
-  
-  bm.report("anomaly detect init") do
-    score = training_set.anomaly_score_of(["foobarbaz"])
-    TSB.debug "initialized cached variables for statistical anomaly detector"
-  end
-  
-  bm.report("anomaly detect") do
-    N.times do
-      tokens_to_analyze = statistical_test_set.pop
-      score = training_set.anomaly_score_of(tokens_to_analyze)
-      TSB.debug "anomaly score of tokens #{tokens_to_analyze.inspect} is #{score}"
-    end
+    
+  bm.report("Classify") do
+    BB.test_ham(classifier)
+    BB.test_spam(classifier)
   end
 end
+
+BB.print_report
+
