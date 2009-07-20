@@ -1,1 +1,3 @@
-bench/fixtures/2*
+bench/fixtures/200*.bz2
+bench/fixtures/easy_ham*
+bench/fixtures/spam*
