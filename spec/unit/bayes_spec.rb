@@ -78,12 +78,19 @@ describe Bayes do
   end
   
   it "should optimize for a two class classifier" do
-    @bayes.stub!(:classes).and_return([:good,:bad])
+    @bayes.stub!(:classes).and_return({:good => nil,:bad => nil})
     @bayes.should_receive(:probability_of_tokens_in_class).with(:good, ['a', 'token']).and_return(0.7)
     @bayes.should_not_receive(:probability_of_tokens_in_class).with(:bad, ['a', 'token'])
     scores = @bayes.bayesian_scores_for_tokens(['a', 'token'])
     scores[:good].should be_close(0.7, 0.000001)
     scores[:bad].should be_close(0.3, 0.000001)
+  end
+  
+  it "should give a reasonable default if a token hasn't been seen in a class" do
+    @bayes.stub!(:occurrences_of_token_in_class).and_return({:other=>6347, :this=>nil})
+    @bayes.stub!(:document_counts_by_class).and_return({:other=>3052})
+    nil_doesnt_float = lambda {@bayes.probability_of_tokens_in_class(:some_class, "aToken")}
+    nil_doesnt_float.should_not raise_error(TypeError)
   end
   
 end

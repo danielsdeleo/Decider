@@ -6,7 +6,7 @@ module Decider
     def bayesian_scores_for_tokens(tokens)
       result = {}
       if classes.count == 2
-        class_name, other_class = classes
+        class_name, other_class = classes.keys
         result[class_name] = probability_of_tokens_in_class(class_name, tokens)
         result[other_class] = 1 - result[class_name]
       else
@@ -37,8 +37,8 @@ module Decider
     def probability_of_token_in_class(klass, token)
       occurrences = occurrences_of_token_in_class(klass, token)
       doc_counts = document_counts_by_class(klass)
-      this_class_ratio = (occurrences[:this].to_f / doc_counts[:this])
-      other_classes_ratio = (occurrences[:other].to_f / doc_counts[:other])
+      this_class_ratio = ((occurrences[:this] || 0).to_f / (doc_counts[:this] || 1))
+      other_classes_ratio = ((occurrences[:other] || 0).to_f  / (doc_counts[:other] || 1))
       if this_class_ratio == 0.0 && other_classes_ratio == 0.0
         0.5
       else
