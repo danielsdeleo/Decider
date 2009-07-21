@@ -14,8 +14,8 @@ module Decider
     attr_reader :raw, :additional_tokens, :training_set
     attr_writer :domain_tokens
 
-    def initialize(training_set, raw_text)
-      @training_set, @raw = training_set, raw_text
+    def initialize(raw_text)
+      @raw = raw_text
       @domain_tokens, @additional_tokens = [], []
     end
 
@@ -23,12 +23,6 @@ module Decider
       @additional_tokens += tokens
     end
     
-    
-    def probability
-      #p "computing the fucking probability via #{@training_set.inspect}"
-      @training_set.probability_of_tokens(tokens)
-    end
-
     # returns domain tokens if given no argument. If given an argument, sets 
     # domain tokens. This allows you to avoid using <tt>self.domain_tokens = [...]</tt>
     # when writing token transform modules.

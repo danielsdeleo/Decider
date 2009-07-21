@@ -4,8 +4,7 @@ require File.dirname(__FILE__) + "/../spec_helper"
 # Document is tricky to mock
 class DocMock
   
-  def initialize(ts, text)
-    @ts = ts
+  def initialize(text)
     @text = text
   end
   
@@ -30,7 +29,7 @@ describe TrainingSet do
     before do
       doc_init_proc = lambda { |doc| doc }
       @training_set.stub!(:document_callback).and_return(doc_init_proc)
-      Document.stub!(:new).and_return { |ts, text| DocMock.new(ts, text)}
+      Document.stub!(:new).and_return { |text| DocMock.new(text)}
     end
     
     it "should store training tokens" do
@@ -48,32 +47,6 @@ describe TrainingSet do
       @training_set.count_of("cheese").should == 2
     end
   
-    #it "should find the vector (array) index for a token" do
-    #  @training_set << "parameter" << "other_parameter"
-    #  @training_set.index_of("other_parameter").should == 1
-    #end
-    #
-    #it "should not fail when trying to find the vector index for a token not in the set" do
-    #  @training_set << "a_parm"
-    #  lambda {@training_set.index_of("unknown_token")}.should_not raise_error
-    #end
-    #
-    #it "should generate a vector representation of a list of tokens" do
-    #  @training_set << "parameter" << "other_parm" << "exploitable_php_app.php"
-    #  @training_set.vectorize(["parameter", "other_parm"]).should == [1,1,0]
-    #end
-    #
-    #it "should not fail when generating a vector for a term with unknown tokens" do
-    #  @training_set << "parameter" << "other_parm" << "exploitable_php_app.php"
-    #  @training_set.vectorize(["unknown_tokens"]).should == [0,0,0]
-    #end
-  
-    #it "should compute the total number of tokens and cache it" do
-    #  @training_set << "cheese" << "dumpster" << "oldskool"
-    #  @training_set.total_tokens.should == 3
-    #  @training_set << "cheese" << "dumpster" << "oldskool"
-    #  @training_set.total_tokens.should == 6
-    #end
   end
   
   context "with training data loaded" do
@@ -102,7 +75,7 @@ describe TrainingSet do
 
     
     before(:each) do
-      Document.stub!(:new).and_return { |ts, text| DocMock.new(ts, text)}
+      Document.stub!(:new).and_return { |text| DocMock.new(text)}
       doc_init_proc = lambda { |doc| doc }
       @training_set.stub!(:document_callback).and_return(doc_init_proc)
       TOKENS.each { |token| @training_set << token }

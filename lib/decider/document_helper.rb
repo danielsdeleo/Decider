@@ -4,7 +4,7 @@ module Decider
   module DocumentHelper
     
     def new_document(string)
-      doc = Document.new(self, string)
+      doc = Document.new(string)
       document_callback.call(doc)
       doc
     end

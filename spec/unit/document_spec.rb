@@ -3,27 +3,18 @@ require File.dirname(__FILE__) + "/../spec_helper"
 
 describe Document do
   
-  before(:each) do
-    @ts = mock("TrainingSet")
-  end
-  
   context "on initialization" do
 
     it "should initialize with a raw string" do
-      Document.new(@ts, "the original text").raw.should == "the original text"
+      Document.new("the original text").raw.should == "the original text"
     end
 
-    it "should be able to refer to its parent TrainingSet" do
-      doc = TrainingSet::Document.new(@training_set, ["foo", "bar", "baz"])
-      doc.training_set.should equal @training_set
-    end
-    
   end
 
   context "storing token manipulations" do
 
     before(:each) do
-      @doc = Document.new(@ts, "the original text")
+      @doc = Document.new("the original text")
     end
 
     it "should provide an array for domain tokens" do
@@ -56,7 +47,7 @@ describe Document do
   context "returning tokens" do
 
     before(:each) do
-      @doc = Document.new(@ts, "the original text text")
+      @doc = Document.new("the original text text")
       @doc.domain_tokens = %w{ the original text text }
       @doc.push_additional_tokens ["the original", "original text", "text text"]
     end
@@ -68,22 +59,6 @@ describe Document do
     
   end
   
-  context "when analyzing its tokens" do
-    
-    before(:each) do
-      @training_set = mock("training set")
-      @document = TrainingSet::Document.new(@training_set, "foo bar baz")
-      @document.domain_tokens(%w{foo bar baz})
-    end
-  
-    it "should give the probability of its tokens" do
-      @training_set.should_receive(:probability_of_tokens).with(["foo", "bar", "baz"])
-      @document.probability
-    end
-    
-  end
-  
-
   context "to support extensibility" do
 
     module TestCustomTransforms
@@ -96,7 +71,7 @@ describe Document do
 
     it "should provide a wrapper for include" do
       Document.custom_transforms(TestCustomTransforms)
-      doc = Document.new(@ts, "abc def")
+      doc = Document.new("abc def")
       doc.plain_text
       doc.succ_it
       doc.additional_tokens.should == %w{abd deg}
