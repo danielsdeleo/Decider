@@ -21,8 +21,8 @@ module Decider
     # <tt>Document.custom_transforms(YourOwnTokenTransforms)</tt>
     #
     def initialize(owner, &block)
-      @tokens = {}
-      @documents = []
+      @owner = owner
+      @tokens, @documents = {}, []
       if block_given?
         self.document_callback = block
       end
@@ -74,11 +74,8 @@ module Decider
     end
     
     def invalidate_cache
+      @owner.invalidate_cache
       @token_values = nil
-      @token_count = nil
-      @document_score_stddev = nil
-      @anomaly_score_of_tokens = nil
-      @avg_document_probability = nil
     end
     
   end

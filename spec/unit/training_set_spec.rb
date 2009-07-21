@@ -21,7 +21,8 @@ end
 describe TrainingSet do
   
   before(:each) do
-    @training_set = TrainingSet.new("no owner")
+    @owner = mock("training set owner", :null_object => true)
+    @training_set = TrainingSet.new(@owner)
   end
   
   context "working with training data" do 
@@ -45,6 +46,11 @@ describe TrainingSet do
     it "should increment the count for a token when given a duplicate" do
       @training_set << "cheese" << "cheese"
       @training_set.count_of("cheese").should == 2
+    end
+    
+    it "should invalidate the cache of its owner when adding documents" do
+      @owner.should_receive(:invalidate_cache)
+      @training_set << "some stuff"
     end
   
   end
