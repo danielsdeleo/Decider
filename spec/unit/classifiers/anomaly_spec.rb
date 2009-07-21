@@ -27,4 +27,23 @@ describe Classifier::Anomaly do
     @anomaly_detector.anomaly_score("an innocuous document")[:one_class].should be_close(2.0, 0.00001)
   end
   
+
+  context "detecting anomalies with the statistical algorithm" do
+
+    before do
+      @classifier = Classifier::Anomaly.new(:normal)
+    end
+
+    it "should complain if asked to do anomaly detection and it has 2+ classes" do
+      strange_request = lambda { Classifier::Anomaly.new(:bayes, :spam, :ham).anomalous?("text")}
+      strange_request.should raise_error
+    end
+
+    it "should classify a document as anomalous the document has an anomaly score > 3" do
+      @classifier.normal.should_receive(:anomaly_score_of_document).with("rubyist loving java").and_return(11)
+      @classifier.anomalous?("rubyist loving java").should be_true
+    end
+
+  end
+
 end
