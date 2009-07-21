@@ -1,6 +1,7 @@
 # encoding: UTF-8
 
 require "stemmer"
+require "bloomfilter" # igrigorik-bloomfilter-0.1.1
 
 unless defined?(DECIDER_ROOT)
   DECIDER_ROOT = File.dirname(__FILE__) + '/'
