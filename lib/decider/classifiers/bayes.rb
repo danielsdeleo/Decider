@@ -120,6 +120,7 @@ module Decider
       
       def invalidate_cache
         super
+        @occurrences_of_token_in_class = nil
         @document_counts_by_class = nil
         @scores_of_all_documents = nil
         @probability_of_token_in_class = nil
@@ -128,8 +129,9 @@ module Decider
       private
       
       def token_probability_bf
-        k = (total_documents * 0.7).round + 1
-        BloomFilter.new(15, k, rand(2 ** 32))
+        #k = (total_documents * 1 * 0.7).round + 1
+        #BloomFilter.new(15, k, rand(2 ** 32))
+        {}
       end
       
     end
