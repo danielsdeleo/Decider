@@ -54,9 +54,11 @@ module Decider
     end
     
     def term_frequency
-      term_frequency = {}
-      tokens.each { |token| term_frequency[token] = count_of(token) }
-      term_frequency
+      unless @term_frequency
+        @term_frequency = {}
+        tokens.each { |token| @term_frequency[token] = count_of(token) }
+      end
+      @term_frequency
     end
     
     def count_of(token)
@@ -76,6 +78,7 @@ module Decider
     def invalidate_cache
       @owner.invalidate_cache
       @token_values = nil
+      @term_frequency = nil
     end
     
   end
