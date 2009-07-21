@@ -75,7 +75,7 @@ describe Classifier::Bayes do
     end
   
     it "should optimize for a two class classifier" do
-      @classifier.stub!(:classes).and_return({:good => nil,:bad => nil})
+      @classifier.stub!(:class_names).and_return([:good,:bad])
       @classifier.should_receive(:probability_of_tokens_in_class).with(:good, ['a', 'token']).and_return(0.7)
       @classifier.should_not_receive(:probability_of_tokens_in_class).with(:bad, ['a', 'token'])
       scores = @classifier.bayesian_scores_for_tokens(['a', 'token'])
@@ -88,6 +88,12 @@ describe Classifier::Bayes do
       @classifier.stub!(:document_counts_by_class).and_return({:other=>3052})
       nil_doesnt_float = lambda {@classifier.probability_of_tokens_in_class(:some_class, "aToken")}
       nil_doesnt_float.should_not raise_error(TypeError)
+    end
+    
+    it "should give the total number of documents" do
+      @classifier.deck.stub!(:doc_count).and_return(5)
+      @classifier.weak.stub!(:doc_count).and_return(7)
+      @classifier.total_documents.should == 12
     end
   
   end
