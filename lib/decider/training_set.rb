@@ -20,7 +20,7 @@ module Decider
     # tokenization methods can be created in a module and loaded with 
     # <tt>Document.custom_transforms(YourOwnTokenTransforms)</tt>
     #
-    def initialize(&block)
+    def initialize(owner, &block)
       @tokens = {}
       @documents = []
       if block_given?

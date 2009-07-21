@@ -21,7 +21,7 @@ end
 describe TrainingSet do
   
   before(:each) do
-    @training_set = TrainingSet.new
+    @training_set = TrainingSet.new("no owner")
   end
   
   context "working with training data" do 

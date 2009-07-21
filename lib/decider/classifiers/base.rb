@@ -49,7 +49,7 @@ module Decider
         @classes = {}
         self.document_callback = block if block_given?
         classes.each do |klass|
-          @classes[klass.to_sym] = TrainingSet.new(&document_callback)
+          @classes[klass.to_sym] = TrainingSet.new(self, &document_callback)
           define_accessor_for(klass)
           define_predicate_for(klass)
         end
