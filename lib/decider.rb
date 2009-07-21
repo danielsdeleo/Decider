@@ -22,9 +22,9 @@ require DECIDER_ROOT + "decider/classifiers/anomaly"
 module Decider
   extend self
   
-  # Convenience method for Classifier.new
+  # Convenience method for Classifier::Bayes.new
   def classifier(*args, &block)
-    Classifier.new(*args, &block)
+    Classifier::Bayes.new(*args, &block)
   end
 end
 
