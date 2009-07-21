@@ -39,48 +39,18 @@ describe Classifier::Base do
 
   end
   
-  context "classifying documents with the bayesian algorithm" do
+  context "with calls to methods that are supposed to be defined in subclasses" do
     
     before do
-      @classifier = Classifier::Base.new(:bayes, :deck, :weak)
+      @classifier = Classifier::Base.new(:one_class, :two_class)
     end
     
-    it "should classify documents" do
-      @classifier.should_receive(:bayesian_scores_for_tokens).and_return({:weak => 1, :deck => 0})
-      @classifier.classify("java php").should == :weak
+    it "should have a land mine for #classify" do
+      lambda {@classifier.classify("whatever")}.should raise_error Classifier::NotImplementedError
     end
     
-    it "should give the raw scores" do
-      @classifier.should_receive(:bayesian_scores_for_tokens).and_return({:weak => 1, :deck => 0})
-      @classifier.scores("java php").should == {:deck => 0, :weak => 1}
-    end
-    
-    it "should give the scores of the documents in each class" do
-      @classifier.deck << "two deck" << "documents"
-      @classifier.weak << "and one weak one"
-      @classifier.stub!(:bayesian_scores_for_tokens).and_return({:deck =>0.9, :weak => 0.1},
-                                                                {:deck =>0.6,:weak => 0.4},
-                                                                {:deck =>0.8,:weak => 0.2})
-      expected = {:deck => [0.9, 0.6, 0.8], :weak => [0.1, 0.4, 0.2] }
-      @classifier.scores_of_all_documents.should == expected
-    end
-  
-  end
-  
-  context "detecting anomalies with the statistical algorithm" do
-    
-    before do
-      @classifier = Classifier::Base.new(:normal)
-    end
-    
-    it "should complain if asked to do anomaly detection and it has 2+ classes" do
-      strange_request = lambda { Classifier::Base.new(:bayes, :spam, :ham).anomalous?("text")}
-      strange_request.should raise_error
-    end
-    
-    it "should classify a document as anomalous the document has an anomaly score > 3" do
-      @classifier.normal.should_receive(:anomaly_score_of_document).with("rubyist loving java").and_return(11)
-      @classifier.anomalous?("rubyist loving java").should be_true
+    it "should define #invalidate_cache so subclasses can call super in that method" do
+      @classifier.should respond_to(:invalidate_cache)
     end
     
   end

@@ -3,6 +3,29 @@
 module Decider
   module Classifier
     class Bayes < Base
+      
+      # Gives the probabilites for +document_text+ to be in each class.
+      def scores(document_text)
+        bayesian_scores_for_tokens(new_document(document_text).tokens)
+      end
+    
+      # TODO: Caching
+      def scores_of_all_documents
+        result = Hash.new {|hsh,key| hsh[key]=[]}
+        classes.each do |class_name, training_set|
+          training_set.documents.each do |doc|
+            bayesian_scores_for_tokens(doc.tokens).each do |klass_name, score|
+              result[klass_name] << score
+            end
+          end
+        end
+        result
+      end
+    
+      # Classifies +document_text+ based on previous training.
+      def classify(document_text)
+        scores(document_text).inject { |memo, key_val| key_val.last > memo.last ? key_val : memo }.first
+      end
     
       def bayesian_scores_for_tokens(tokens)
         result = {}

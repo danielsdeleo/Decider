@@ -2,6 +2,9 @@
 
 module Decider
   module Classifier
+    class NotImplementedError < StandardError
+    end
+    
     class Base
       attr_reader :algorithm, :classes
     
@@ -56,38 +59,16 @@ module Decider
       def class_names
         @classes.keys
       end
-    
-      # Gives the probabilites for +document_text+ to be in each class.
-      def scores(document_text)
-        bayesian_scores_for_tokens(new_document(document_text).tokens)
+      
+      def classify(*args)
+        raise NotImplementedError, "#classify is supposed to be defined in a subclass"
       end
-    
-      # TODO: Caching
-      def scores_of_all_documents
-        result = Hash.new {|hsh,key| hsh[key]=[]}
-        classes.each do |class_name, training_set|
-          training_set.documents.each do |doc|
-            bayesian_scores_for_tokens(doc.tokens).each do |klass_name, score|
-              result[klass_name] << score
-            end
-          end
-        end
-        result
+      
+      # Just a stub here. Called by the training set(s) when a new document is 
+      # added. Subclasses use this to nillify cached computations
+      def invalidate_cache
       end
-    
-      # Classifies +document_text+ based on previous training.
-      def classify(document_text)
-        scores(document_text).inject { |memo, key_val| key_val.last > memo.last ? key_val : memo }.first
-      end
-    
-      # Single-class classifiers have experimental anomaly detection. If +document_text+
-      # is 3+ Standard Deviations from what the classifier thinks is "normal", returns
-      # true, otherwise false
-      def anomalous?(document_text)
-        raise "I don't do anomaly detection on more than one class right now" if @classes.count > 1
-        @classes.values.first.anomaly_score_of_document(document_text) > 3
-      end
-    
+      
       private
     
       def define_accessor_for(klass)

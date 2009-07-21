@@ -15,8 +15,8 @@ require DECIDER_ROOT + "decider/document"
 require DECIDER_ROOT + "decider/document_helper"
 require DECIDER_ROOT + "decider/training_set"
 require DECIDER_ROOT + "decider/classifiers/base"
-require DECIDER_ROOT + "decider/classifiers/stats"
 require DECIDER_ROOT + "decider/classifiers/bayes"
+require DECIDER_ROOT + "decider/classifiers/anomaly"
 
 module Decider
   extend self
