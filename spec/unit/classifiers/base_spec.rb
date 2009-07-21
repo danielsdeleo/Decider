@@ -1,21 +1,20 @@
 # encoding: UTF-8
-require File.dirname(__FILE__) + "/../spec_helper"
+require File.dirname(__FILE__) + "/../../spec_helper"
 
-describe Classifier do
+describe Classifier::Base do
   
   context "when initializing" do
     
-    it "should store an algorithm type and N classes" do
-      c = Classifier.new(:bayes, :spam, :ham, :sam)
-      c.algorithm.should == :bayes
-      c.class_names.should include(:spam, :ham, :sam)
+    it "should have N classes" do
+      c = Classifier::Base.new(:spam, :ham, :blam)
+      c.class_names.should include(:spam, :ham, :blam)
     end
     
     it "should take a token transform block" do
       mock_doc = mock("ts")
       TrainingSet.should_receive(:new).and_yield(mock_doc)
       mock_doc.should_receive(:foo)
-      c = Classifier.new(:bayes, :whatsis) do |doc|
+      c = Classifier::Base.new(:whatsis) do |doc|
         doc.foo
       end
     end
@@ -27,7 +26,7 @@ describe Classifier do
     before do
       @training_set = mock("ts")
       TrainingSet.stub!(:new).and_return(@training_set)
-      @classifier = Classifier.new(:bayes, :whatsis)
+      @classifier = Classifier::Base.new(:bayes, :whatsis)
     end
     
     it "should create a training set for each class and define an accessor for it" do
@@ -43,7 +42,7 @@ describe Classifier do
   context "classifying documents with the bayesian algorithm" do
     
     before do
-      @classifier = Classifier.new(:bayes, :deck, :weak)
+      @classifier = Classifier::Base.new(:bayes, :deck, :weak)
     end
     
     it "should classify documents" do
@@ -71,11 +70,11 @@ describe Classifier do
   context "detecting anomalies with the statistical algorithm" do
     
     before do
-      @classifier = Classifier.new(:statistical, :normal)
+      @classifier = Classifier::Base.new(:normal)
     end
     
     it "should complain if asked to do anomaly detection and it has 2+ classes" do
-      strange_request = lambda { Classifier.new(:bayes, :spam, :ham).anomalous?("text")}
+      strange_request = lambda { Classifier::Base.new(:bayes, :spam, :ham).anomalous?("text")}
       strange_request.should raise_error
     end
     

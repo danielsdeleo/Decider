@@ -1,14 +1,10 @@
 # encoding: UTF-8
-require File.dirname(__FILE__) + "/../spec_helper"
+require File.dirname(__FILE__) + "/../../spec_helper"
 
-class BayesTestHarness
-  include Bayes
-end
-
-describe Bayes do
+describe Classifier::Bayes do
   
   before(:each) do
-    @bayes = BayesTestHarness.new
+    @bayes = Classifier::Bayes.new(:indie_rock, :foreign_films)
   end
   
   it "should give a term frequency hash for a token" do
