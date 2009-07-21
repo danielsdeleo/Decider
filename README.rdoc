@@ -3,7 +3,7 @@
 
 == Getting Started
 
-  c = Decider.classifier(:bayes, :spam, :ham) do |doc|
+  c = Decider.classifier(:spam, :ham) do |doc|
     doc.plain_text
     doc.ngrams(2..3)
     doc.stem
@@ -19,7 +19,7 @@
   puts "ham:  #{c.ham.term_frequency.inspect}"
   puts ""
   p c.scores("let's write code and drink some beers")
-  # => {:spam=>0.0, :ham=>5.0}
+  # => {:spam=>0.0, :ham=>1.0}
   p c.classify("let's write code and drink some beers")
   # => :ham
   
