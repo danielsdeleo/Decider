@@ -47,6 +47,7 @@ module BayesBench
   end
   
   def preload_data
+    #dirs = {:training_ham => "easy_ham", :training_spam => "spam", :test_ham => "easy_ham_2", :test_spam => "spam_2"}
     dirs = {:training_ham => "easy_ham", :training_spam => "spam", :test_ham => "easy_ham_2", :test_spam => "spam_2"}
     @data = {}
     dirs.each do |key, dir|
@@ -84,7 +85,7 @@ module BayesBench
   
   def test_ham(classifier)
     false_positives = 0
-    @data[:test_spam].each do |msg|
+    @data[:test_ham].each do |msg|
       false_positives += 1 unless classifier.ham?(msg)
     end
     @accuracy_stats.false_positives = false_positives
