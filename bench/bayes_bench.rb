@@ -100,7 +100,7 @@ BB = BayesBench
 BB.fail_unless_sa_corpus_available
 BB.preload_data
 
-classifier = Decider.classifier(:bayes, :spam, :ham) do |doc|
+classifier = Decider.classifier(:spam, :ham) do |doc|
   doc.plain_text
   #doc.ngrams(2)
   #doc.stem
@@ -108,14 +108,18 @@ end
 
 Benchmark.bm(18) do |bm|
   
+  GC.start
+  
   bm.report("Train Classifier") do
     BB.train_on_ham(classifier)
     BB.train_on_spam(classifier)
   end
     
+  GC.start
+  
   bm.report("Classify") do
-    BB.test_ham(classifier)
     BB.test_spam(classifier)
+    BB.test_ham(classifier)
   end
 end
 
