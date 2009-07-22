@@ -32,11 +32,23 @@ module Decider
       # using Bayes' theorem to combine the probabilities of each token.
       def probability_of_tokens_in_class(klass, tokens)
         product, inverse_product = 1, 1
+        loop_index = 1
+        #p "START============================================================="
         tokens.each do |token|
+          loop_index = (loop_index + 1) % 10
           probability = probability_of_token_in_class(klass, token)
           product = product * probability
           inverse_product = inverse_product * (1 - probability)
+          #p "interim numerator: #{product}"
+          #p "interim denominator: #{(product + inverse_product)}"
+          if loop_index == 0
+            #p "rebalancing..."
+            product, inverse_product = rebalance!(product, inverse_product) 
+            #p "interim numerator: #{product}"
+            #p "interim denominator: #{(product + inverse_product)}"
+          end
         end
+        #p "FIN=============================================================="
         product / (product + inverse_product)
       end
     
@@ -66,14 +78,12 @@ module Decider
           doc_counts = document_counts_by_class(klass)
           this_class_ratio = ((occurrences[:this] || 0).to_f / (doc_counts[:this] || 1))
           other_classes_ratio = ((occurrences[:other] || 0).to_f  / (doc_counts[:other] || 1))
-          if this_class_ratio == 0.0 && other_classes_ratio == 0.0
-            probability = 0.5
-          else
-            probability = (this_class_ratio / (this_class_ratio + other_classes_ratio))
-          end
+          probability = bounded_probability(this_class_ratio, other_classes_ratio)
           @probability_of_token_in_class[[klass,token].hash.to_s] = probability
         end
         @probability_of_token_in_class[[klass,token].hash.to_s]
+        #p "probability of token in class #{r}"
+        #r
       end
     
       def document_counts_by_class(klass)
@@ -127,6 +137,23 @@ module Decider
       end
       
       private
+      
+      def rebalance!(product, inverse_product)
+        return [1.0, (inverse_product / product)]
+      end
+      
+      def bounded_probability(this, other)
+        # default value for unknown tokens
+        return 0.5 if this == 0.0 && other == 0.0
+        probability = (this / (this + other))
+        if probability > 0.99
+          return 0.99
+        elsif probability < 0.01
+          return 0.01
+        else
+          return probability
+        end
+      end
       
       def token_probability_bf
         #k = (total_documents * 1 * 0.7).round + 1

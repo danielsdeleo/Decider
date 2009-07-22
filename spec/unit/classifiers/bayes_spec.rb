@@ -95,6 +95,18 @@ describe Classifier::Bayes do
       @classifier.weak.stub!(:doc_count).and_return(7)
       @classifier.total_documents.should == 12
     end
+    
+    it "should rebalance the values in bayesian combination so they don't get rounded to 0" do
+      product, inverse_product = 0.1, 0.9
+      product_2, inverse_product_2 = @classifier.send(:rebalance!, product, inverse_product)
+      product_2.should == 1.0
+      inverse_product_2.should == 9.0
+    end
+    
+    it "should force the value of probability_of_token_in_class to within 0.01 to 0.99" do
+      @classifier.send(:bounded_probability, 0, 1).should == 0.01
+      @classifier.send(:bounded_probability, 1, 0).should == 0.99
+    end
   
   end
   
