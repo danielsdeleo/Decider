@@ -1,7 +1,27 @@
 = Decider
 <b>Yet Another Ruby Machine Learning Library</b>
 
-== Getting Started
+= Manifesto
+There are other ruby machine learning libraries out there:
+* http://github.com/cardmagic/classifier
+* http://github.com/pauldix/basset
+* More?
+
+So why another one?
+* You can install it and try it in irb right away. You don't need to learn how a half-dozen classes work to get started:
+  c = Decider.classifier(:spam, :ham)
+  c.spam << "some spammy text"
+  c.ham << "some hammy goodness"
+  c.spam?("more spammy text")
+  # => true
+
+The default configuration is about 96% accurate as an email spam classifier.
+
+* You can control how it processes its input easily. Decider has built-in support for plain text and URIs, stemming words, stop word removal, and n-grams. All of these can easily be combined at your option (see "Getting Started" below for a quick example). Additional tokenization strategies or support for non-text document types can be added with a minimum of hassle.
+
+* Persist (Save) with [http://github.com/wycats/moneta]Moneta. Pretty much any storage mechanism that's available in ruby is supported. Save to a database and implement distributed classification if you like.
+
+= Getting Started
 
   c = Decider.classifier(:spam, :ham) do |doc|
     doc.plain_text
