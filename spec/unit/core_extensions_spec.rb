@@ -25,3 +25,19 @@ describe Hash do
     {:a=>1,:b=>2,:c=>3}.map_vals {|v| v ** 2 }.should == {:a=>1,:b=>4,:c=>9}
   end
 end
+
+module CoreExtensionsSpec
+  module NestedConst
+    module NestedDeeper
+      
+    end
+  end
+end
+
+describe String do
+  it "should convert to a constant" do
+    "core_extensions_spec/nested_const".to_const.should == CoreExtensionsSpec::NestedConst
+    "core_extensions_spec/nested_const/nested_deeper".to_const.should == CoreExtensionsSpec::NestedConst::NestedDeeper
+    "module".to_const.should == Module
+  end
+end

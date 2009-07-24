@@ -46,3 +46,15 @@ class Hash
   end
   
 end
+
+class String
+  
+  def to_const
+    const_names = self.split("/").map do |const_name|
+      const_name.split("_").map { |word| word.capitalize }.join("")
+    end
+    root = Module.const_get(const_names.shift)
+    const_names.inject(root) { |const, const_name| const.const_get(const_name)}
+  end
+  
+end

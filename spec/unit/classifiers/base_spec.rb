@@ -1,6 +1,17 @@
 # encoding: UTF-8
 require File.dirname(__FILE__) + "/../../spec_helper"
 
+module Moneta
+  class MockStore
+    
+  end
+end
+
+module DefLoad
+  def load(*args)
+  end
+end
+
 describe Classifier::Base do
   
   context "when initializing" do
@@ -12,7 +23,7 @@ describe Classifier::Base do
     
     it "should take a token transform block" do
       mock_doc = mock("ts")
-      TrainingSet.should_receive(:new).and_yield(mock_doc)
+      TrainingSet.should_receive(:new).with(:whatsis, instance_of(Classifier::Base)).and_yield(mock_doc)
       mock_doc.should_receive(:foo)
       c = Classifier::Base.new(:whatsis) do |doc|
         doc.foo
@@ -53,6 +64,57 @@ describe Classifier::Base do
       @classifier.should respond_to(:invalidate_cache)
     end
     
+  end
+  
+  context "saving to moneta" do
+    
+    before do
+      @classifier = Classifier::Base.new(:hot, :not)
+    end
+    
+    it "should store the classifier name and return itself" do
+      @classifier.save_as(:hot_or_not).should == @classifier
+      @classifier.name.should == "hot_or_not"
+    end
+    
+    it "should magically require the needed Moneta lib file and create a moneta obj" do
+      @classifier.should_receive(:require).with("moneta/mock_store")
+      Moneta::MockStore.should_receive(:new).with("mock store opts")
+      @classifier.save_as(:hot_not).to(:mock_store, "mock store opts")
+    end
+    
+    context "after moneta store is initialized" do
+      
+      before do
+        @classifier.stub!(:require)
+        Moneta::MockStore.stub!(:new).and_return("a delicious cookie")
+        @classifier.save_as(:hot_not).to(:mock_store, "mock store opts")
+      end
+    
+      it "should save by calling #save on its training sets" do
+        @classifier.hot.should_receive(:save)
+        @classifier.not.should_receive(:save)
+        @classifier.save
+        @classifier.store.should == "a delicious cookie"
+      end
+    
+      it "should load by calling #load on its training sets" do
+        @classifier.classes.each_value { |ts| ts.extend DefLoad } #Kernel.load is angry
+        @classifier.hot.should_receive(:load)
+        @classifier.not.should_receive(:load)
+        @classifier.load
+      end
+      
+    end
+    #c = Classifier::Base.new(:deck, :wack)
+    ## syntax A
+    #c.store_as("deck_or_wack").to(:data_mapper, *moneta_dm_args) 
+    ## Syntax B
+    #c.store_as("deck_or_wack")
+    #c.store_to(:data_mapper, *moneta_dm_args)
+    ## Then
+    # c.save
+    # c.load
   end
   
 end

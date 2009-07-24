@@ -1,6 +1,8 @@
 # encoding: UTF-8
 require File.dirname(__FILE__) + "/../spec_helper"
 
+require "moneta/memory"
+
 # Document is tricky to mock
 class DocMock
   
@@ -22,7 +24,11 @@ describe TrainingSet do
   
   before(:each) do
     @owner = mock("training set owner", :null_object => true)
-    @training_set = TrainingSet.new(@owner)
+    @training_set = TrainingSet.new(:ts_name, @owner)
+  end
+  
+  it "should be named" do
+    @training_set.name.should == "ts_name"
   end
   
   context "working with training data" do 
@@ -123,6 +129,45 @@ describe TrainingSet do
       @training_set.should_receive(:new_document).with("some text").and_return(document)
       document.should_receive(:tokens).and_return([])
       @training_set << "some text"
+    end
+    
+  end
+  
+  context "storing to a moneta key value store" do
+    
+    # classifier
+    #  |--training set "A"
+    #  |
+    #  `--training set "B" 
+    #       |--documents      
+    #       |--token "A" => count
+    #       `--token "B"=> count
+    # 
+    # classifier.name::training_set.name::documents=>[docs]
+    # classifier.name::training_set.name::tokens=>{tokens}
+    
+    before do
+      @kv_store = Moneta::Memory.new
+      @owner.stub!(:store).and_return(@kv_store)
+      @owner.stub!(:name).and_return("snoop")
+      @training_set = TrainingSet.new(:ts_name, @owner) { |doc| doc.plain_text }
+      @training_set << "doc one" << "doc two"
+    end
+    
+    it "should save documents and tokens to a moneta store" do
+      @training_set.save
+      @kv_store["snoop::ts_name::documents"].should have(2).documents
+      @kv_store["snoop::ts_name::tokens"].should ==  {"two"=>1, "doc"=>2, "one"=>1}
+    end
+    
+    it "should load documents from a moneta store" do
+      docs = [DocMock.new("Doc A"), DocMock.new("Doc B")]
+      @kv_store["snoop::ts_name::documents"] = docs
+      tokens = {"A" => 1, "B" => 1, "Doc" => 2}
+      @kv_store["snoop::ts_name::tokens"] = tokens
+      @training_set.load
+      @training_set.documents.should == docs
+      @training_set.instance_variable_get(:@tokens).should == tokens
     end
     
   end

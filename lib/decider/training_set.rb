@@ -2,7 +2,7 @@
 
 module Decider
   class TrainingSet
-    attr_reader :documents #, :new_document_callback
+    attr_reader :documents, :name
     include DocumentHelper
     
     # Creates a new training set. Generally, one training set object corresponds
@@ -20,9 +20,9 @@ module Decider
     # tokenization methods can be created in a module and loaded with 
     # <tt>Document.custom_transforms(YourOwnTokenTransforms)</tt>
     #
-    def initialize(owner, &block)
-      @owner = owner
-      @tokens, @documents = {}, []
+    def initialize(name, owner, &block)
+      @name, @owner = name.to_s, owner
+      @tokens, @documents = Hash.new {0}, []
       if block_given?
         self.document_callback = block
       end
@@ -40,11 +40,7 @@ module Decider
       @documents << doc
       
       doc.tokens.each do |token|
-        if @tokens.has_key?(token)
-          @tokens[token].increment
-        else
-          @tokens[token] = Token.new(token, :index => @tokens.length)
-        end
+        @tokens[token] +=1
       end
       self
     end
@@ -62,14 +58,37 @@ module Decider
     end
     
     def count_of(token)
-      @tokens[token].count
+      @tokens[token]
     end
     
     def doc_count
       @documents.count
     end
     
+    def save
+      store[documents_key] = @documents
+      store[tokens_key] = @tokens
+    end
+    
+    def load
+      invalidate_cache
+      @documents = store[documents_key]
+      @tokens = store[tokens_key]
+    end
+    
     private
+    
+    def store
+      @owner.store
+    end
+    
+    def documents_key
+      "#{@owner.name}::#{@name}::documents"
+    end
+    
+    def tokens_key
+      "#{@owner.name}::#{@name}::tokens"
+    end
     
     def hapax_occurrence_value
       0

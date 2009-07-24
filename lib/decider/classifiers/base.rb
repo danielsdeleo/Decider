@@ -6,7 +6,7 @@ module Decider
     end
     
     class Base
-      attr_reader :algorithm, :classes
+      attr_reader :algorithm, :classes, :name, :store
     
       include DocumentHelper
     
@@ -49,7 +49,7 @@ module Decider
         @classes = {}
         self.document_callback = block if block_given?
         classes.each do |klass|
-          @classes[klass.to_sym] = TrainingSet.new(self, &document_callback)
+          @classes[klass.to_sym] = TrainingSet.new(klass, self, &document_callback)
           define_accessor_for(klass)
           define_predicate_for(klass)
         end
@@ -67,6 +67,25 @@ module Decider
       # Just a stub here. Called by the training set(s) when a new document is 
       # added. Subclasses use this to nillify cached computations
       def invalidate_cache
+      end
+      
+      def save_as(name)
+        @name = name.to_s
+        self
+      end
+      
+      def to(back_end, *opts)
+        store_name = "moneta/" + back_end.to_s
+        require store_name
+        @store = store_name.to_const.new(*opts)
+      end
+      
+      def save
+        @classes.each_value { |ts| ts.save }
+      end
+      
+      def load
+        @classes.each_value { |ts| ts.load }
       end
       
       private
