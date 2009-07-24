@@ -19,7 +19,7 @@ The default configuration is about 96% accurate as an email spam classifier.
 
 * You can control how it processes its input easily. Decider has built-in support for plain text and URIs, stemming words, stop word removal, and n-grams. All of these can easily be combined at your option (see "Getting Started" below for a quick example). Additional tokenization strategies or support for non-text document types can be added with a minimum of hassle.
 
-* Persist (Save) with [http://github.com/wycats/moneta]Moneta. Pretty much any storage mechanism that's available in ruby is supported. Save to a database and implement distributed classification if you like.
+* Persist (Save) with Moneta[http://github.com/wycats/moneta]. Pretty much any storage mechanism that's available in ruby is supported. Save to a database and implement distributed classification if you like.
 
 = Getting Started
 
