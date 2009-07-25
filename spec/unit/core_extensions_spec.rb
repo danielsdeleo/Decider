@@ -18,6 +18,10 @@ describe ::Math, "with core extensions" do
   it "should compute the standard deviation of a sample of a collection" do
     Math.stddev([1,1,0,0], :sample => true).should == Math.sqrt(1.0/3.0)
   end
+  
+  it "should sum the elements in an array" do
+    Math.sum_floats([1,1.5, -0.25]).should == 2.25
+  end
 end
 
 describe Hash do

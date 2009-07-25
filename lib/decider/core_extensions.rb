@@ -30,7 +30,11 @@ module Math
     total.to_f / pop.count.to_f
   end
   
-  module_function :variance, :avg, :stddev
+  def sum_floats(array)
+    array.inject(0.0) { |sum, element| sum + element }
+  end
+  
+  module_function :variance, :avg, :stddev, :sum_floats
   
 end
 
