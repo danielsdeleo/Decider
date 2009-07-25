@@ -3,24 +3,6 @@
 module Decider
   module Vectorize
     
-    def token_indices
-      token_indices_hsh = {}
-      index = 0
-      sorted_classes.each do |klass|
-        klass.tokens.each do |token|
-          unless token_indices_hsh.has_key?(token)
-            token_indices_hsh[token] = index
-            index += 1
-          end
-        end
-      end
-      token_indices_hsh
-    end
-    
-    def empty_vector
-      Array.new(token_indices.size, 0)
-    end
-    
     def binary_vector(document)
       vector = empty_vector
       new_document(document).tokens.each do |token|
@@ -52,7 +34,31 @@ module Decider
       denominator == 0 ? 1.0 : covariance / denominator
     end
     
+    def tanimoto_coefficient(v1, v2)
+      v1.dot(v2) / ((v1.dot(v1) + v2.dot(v2) - v1.dot(v2)))
+    end
+    
     private
+    
+    # Builds a hash of 'token' => i where i is an autoincrementing integer.
+    # Used elsewhere to (quickly) build a vector representation of a document
+    def token_indices
+      token_indices_hsh = {}
+      index = 0
+      sorted_classes.each do |klass|
+        klass.tokens.each do |token|
+          unless token_indices_hsh.has_key?(token)
+            token_indices_hsh[token] = index
+            index += 1
+          end
+        end
+      end
+      token_indices_hsh
+    end
+    
+    def empty_vector
+      Array.new(token_indices.size, 0)
+    end
     
     def euclidian_distance(vector1, vector2)
       sum_of_squares_of_distances = 0

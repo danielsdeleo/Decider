@@ -51,3 +51,14 @@ describe Symbol do
     [:a, :x, :n].sort.should == [:a, :n, :x]
   end
 end
+
+describe Array do
+  it "should compute the dot product of itself and another equal-sized array" do
+    [1,3,5].dot([2,7,3]).should == (1 * 2) + (3 * 7) + (5 * 3)
+  end
+  
+  it "should compute dot products for unequal sized arrays" do
+    [3,5].dot([2,7,11]).should == (6 + 35)
+    [2,7,11,13,17,19,23].dot([3,5]).should == (6 + 35)
+  end
+end

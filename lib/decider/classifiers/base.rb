@@ -45,7 +45,6 @@ module Decider
       #   => true
       #
       def initialize(*classes, &block)
-        @algorithm = algorithm
         @classes = {}
         self.document_callback = block if block_given?
         classes.each do |klass|

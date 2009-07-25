@@ -70,3 +70,20 @@ class Symbol
   end
   
 end
+
+class Array
+  
+  def dot(other_array)
+    case size <=> other_array.size
+    when 0,-1
+      elements = size
+    when 1
+      elements = other_array.size
+    end
+      
+    dot_product = 0
+    elements.times { |i| dot_product += self[i] * other_array[i] }
+    dot_product
+  end
+  
+end
