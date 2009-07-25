@@ -30,6 +30,13 @@ describe Classifier::Base do
       end
     end
     
+    it "should give the training sets in a sorted array so things work correctly for Ruby 1.8 luddites" do
+      c = Classifier::Base.new(:z, :n, :a)
+      sorted = c.sorted_classes
+      sorted.each { |klass| klass.should be_instance_of(TrainingSet) }
+      sorted.map { |klass| klass.name.to_s }.should == ["a", "n", "z"]
+    end
+    
   end
     
   context "defining singleton||eigen methods for each class" do

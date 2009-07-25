@@ -41,3 +41,9 @@ describe String do
     "module".to_const.should == Module
   end
 end
+
+describe Symbol do
+  it "should define <=> as self.to_s <=> other.to_s" do
+    [:a, :x, :n].sort.should == [:a, :n, :x]
+  end
+end

@@ -60,6 +60,14 @@ module Decider
         @classes.keys
       end
       
+      # Sort the TrainingSets (classes) by name. Converting documents to vectors
+      # (see Vectorize) depends on getting the training sets in a deterministic
+      # ordering. If everyone would just use Ruby 1.9, I wouldn't have to do this...
+      # jerks!
+      def sorted_classes
+        @sorted_classes ||= class_names.sort.map { |name| @classes[name] }
+      end
+      
       def classify(*args)
         raise NotImplementedError, "#classify is supposed to be defined in a subclass"
       end
@@ -87,6 +95,8 @@ module Decider
       def load
         @classes.each_value { |ts| ts.load }
       end
+      
+      alias :save_to :to
       
       private
     
