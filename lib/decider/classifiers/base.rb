@@ -6,7 +6,7 @@ module Decider
     end
     
     class Base
-      attr_reader :algorithm, :classes, :name, :store
+      attr_reader :classes, :name, :store
     
       include DocumentHelper
     
