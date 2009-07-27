@@ -11,13 +11,32 @@ describe Vectorize do
     @vectorizer = VectorizeTestHarness.new
   end
   
-  it "should create a dictionary hash of 'token' => count" do
-    klass_a = mock("class A")
-    klass_b = mock("class B")
-    @vectorizer.stub!(:sorted_classes).and_return([klass_a, klass_b])
-    klass_a.stub!(:tokens).and_return(["token1", "token2"])
-    klass_b.stub!(:tokens).and_return(["token3"])
-    @vectorizer.__send__(:token_indices).should == {"token1" => 0, "token2" => 1, "token3" => 2}
+  context "computing and caching token indices" do
+    
+    before do
+      klass_a = mock("class A")
+      klass_b = mock("class B")
+      @vectorizer.stub!(:sorted_classes).and_return([klass_a, klass_b])
+      klass_a.stub!(:tokens).and_return(["token1", "token2"])
+      klass_b.stub!(:tokens).and_return(["token3"])
+    end
+    
+    it "should create a dictionary hash of 'token' => count" do
+      @vectorizer.__send__(:token_indices).should == {"token1" => 0, "token2" => 1, "token3" => 2}
+    end
+
+    it "should cache the result of #token_indices" do
+      @vectorizer.__send__(:token_indices)
+      expected = {"token1" => 0, "token2" => 1, "token3" => 2}
+      @vectorizer.instance_variable_get(:@token_indices).should == expected
+    end
+    
+    it "should clear the cache" do
+      @vectorizer.__send__(:token_indices)
+      @vectorizer.invalidate_cache
+      @vectorizer.instance_variable_get(:@token_indices).should == nil
+    end
+    
   end
   
   context "converting documents to vectors" do
@@ -57,6 +76,14 @@ describe Vectorize do
     # T(v1, v2) = v1.dot(v2) / (v1.dot(v1) + v2.dot(v2) - v1.dot(v2))
     it "should compute a Tanimoto coefficient" do
       @vectorizer.tanimoto_coefficient([1,0,1], [1,0,1]).should == 1.0
+    end
+    
+    it "should average_vectors" do
+      @vectorizer.average_vectors([1,1,0,0], [1,0,0,1]).should == [1.0, 0.5,0.0, 0.5]
+    end
+    
+    it "should AND binary vectors" do
+      @vectorizer.avg_binary_vectors([1,1,0,0], [1,0,0,1]).should == [1,0,0,0]
     end
     
   end

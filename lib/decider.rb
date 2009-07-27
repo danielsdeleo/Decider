@@ -18,6 +18,8 @@ require DECIDER_ROOT + "decider/training_set"
 require DECIDER_ROOT + "decider/classifiers/base"
 require DECIDER_ROOT + "decider/classifiers/bayes"
 require DECIDER_ROOT + "decider/classifiers/anomaly"
+require DECIDER_ROOT + "decider/clustering/node"
+require DECIDER_ROOT + "decider/clustering/base"
 
 module Decider
   extend self

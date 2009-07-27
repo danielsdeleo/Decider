@@ -38,22 +38,48 @@ module Decider
       v1.dot(v2) / ((v1.dot(v1) + v2.dot(v2) - v1.dot(v2)))
     end
     
+    def average_vectors(v1, v2)
+      avg = []
+      v1.size.times do |i|
+        avg << ((v1[i].to_f + v2[i].to_f) / 2.0)
+      end
+      avg
+    end
+    
+    def invalidate_cache
+      @token_indices = nil
+    end
+    
+    # "Averaging" binary vectors is sorta meaningless. Nevertheless,
+    # this is needed to create the virtual nodes (i.e. groups) for 
+    # Clustering::Node. This method uses "AND" logic. "OR" might be the better
+    # choice...
+    def avg_binary_vectors(v1,v2)
+      avg = []
+      v1.size.times do |i|
+        avg << (v1[i].to_i + v2[i].to_i) / 2 
+      end
+      avg
+    end
+    
     private
     
     # Builds a hash of 'token' => i where i is an autoincrementing integer.
     # Used elsewhere to (quickly) build a vector representation of a document
     def token_indices
-      token_indices_hsh = {}
-      index = 0
-      sorted_classes.each do |klass|
-        klass.tokens.each do |token|
-          unless token_indices_hsh.has_key?(token)
-            token_indices_hsh[token] = index
-            index += 1
+      unless @token_indices
+        @token_indices = {}
+        index = 0
+        sorted_classes.each do |klass|
+          klass.tokens.each do |token|
+            unless @token_indices.has_key?(token)
+              @token_indices[token] = index
+              index += 1
+            end
           end
         end
       end
-      token_indices_hsh
+      @token_indices
     end
     
     def empty_vector
