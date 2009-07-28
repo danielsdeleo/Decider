@@ -26,6 +26,11 @@ describe Clustering::Tree do
       @tree.insert(:new_node, [1,1,0,0])
     end
     
+    it "should print the tree" do
+      @tree.root.should_receive(:to_formatted_s).with(0, {:include_vectors => true})
+      @tree.to_formatted_s(:include_vectors => true)
+    end
+    
   end
   
 end
@@ -71,7 +76,6 @@ describe Clustering::Node do
     it "should create intermediate subnodes so that no node has more than 2 children" do
       @root_node.attach(@test_high)
       @root_node.attach(@test_low)
-      #@root_node.print_tree
       @root_node.should have(2).children
       @root_node.children.each {|child_node| child_node.should have(2).children}
     end

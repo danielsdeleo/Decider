@@ -17,6 +17,10 @@ module Decider
         @root_node.attach(Node.new(name, vector))
       end
       
+      def to_formatted_s(*args)
+        @root_node.to_formatted_s(0, *args)
+      end
+      
     end
     
     class Node
@@ -67,19 +71,20 @@ module Decider
         @children.empty?
       end
       
-      def print_tree(depth=0, opts={})
+      def to_formatted_s(depth=0, opts={})
+        str = ""
         if depth == 0
-          puts "(root)"
+          str << "(root)\n"
         else
-          tree_vis = ""
-          (depth - 1).times { |i| tree_vis << "|  " }
-          tree_vis << ("|--" + name)
-          tree_vis = (tree_vis +  " ").ljust(60) + vector.inspect if opts[:include_vectors]
-          puts tree_vis
+          (depth - 1).times { |i| str << "|  " }
+          str << ("|--" + name)
+          str = str.ljust(60) + vector.inspect if opts[:include_vectors]
+          str << "\n"
         end
         unless leaf?
-          children.each { |c| c.print_tree(depth + 1, opts) }
+          children.each { |c| str << c.to_formatted_s(depth + 1, opts) }
         end
+        str
       end
       
       private
