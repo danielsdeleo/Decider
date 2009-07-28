@@ -2,6 +2,23 @@
 
 module Decider
   module Clustering
+    
+    class Tree
+      
+      def initialize
+        @root_node = Node.new(:root, [0])
+      end
+      
+      def root
+        @root_node
+      end
+      
+      def insert(name, vector)
+        @root_node.attach(Node.new(name, vector))
+      end
+      
+    end
+    
     class Node
       include Vectorize
       
@@ -9,25 +26,8 @@ module Decider
       
       N = 2
       
-      class << self
-        
-        def print_tree(opts={})
-          root_node.print_subtree(0, opts)
-        end
-        
-        def reset!
-          @root_node = nil
-        end
-        
-        def root_node
-          @root_node ||= new(:root, [0,0], :virtual_node => true)
-        end
-        
-      end
-      
-      def initialize(name, vector, opts={})
+      def initialize(name, vector)
         @name, @children, @vector = name.to_s, [], vector
-        self.class.root_node.attach(self) unless opts[:virtual_node]
       end
       
       def attach(node)
@@ -43,7 +43,7 @@ module Decider
       def create_subnode(node)
         closest_child = @children.delete_at(index_of_child_closest_to(node))
         avg_vector = avg_binary_vectors(closest_child.vector, node.vector)
-        subnode = self.class.new(subnode_name(closest_child, node), avg_vector, :virtual_node => true)
+        subnode = self.class.new(subnode_name(closest_child, node), avg_vector)
         subnode.attach(closest_child).attach(node)
       end
       
@@ -67,7 +67,7 @@ module Decider
         @children.empty?
       end
       
-      def print_subtree(depth=0, opts={})
+      def print_tree(depth=0, opts={})
         if depth == 0
           puts "(root)"
         else
@@ -78,7 +78,7 @@ module Decider
           puts tree_vis
         end
         unless leaf?
-          children.each { |c| c.print_subtree(depth + 1, opts) }
+          children.each { |c| c.print_tree(depth + 1, opts) }
         end
       end
       
