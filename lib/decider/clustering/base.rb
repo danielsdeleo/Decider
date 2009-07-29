@@ -18,7 +18,26 @@ module Decider
         corpus << document
       end
       
+      def sorted_classes
+        [corpus]
+      end
+      
+      def tree
+        unless @tree
+          @tree = Tree.new
+          corpus.documents.each do |doc|
+            @tree.insert(:name_tbd, binary_vector(doc))
+          end
+        end
+        @tree
+      end
+      
+      def root_node
+        tree.root
+      end
+      
       def invalidate_cache
+        @tree = nil
         super
       end
       

@@ -58,6 +58,10 @@ describe Clustering::Node do
       @test_high = C.new(:test_high, [1,1,0,0])
       @test_low = C.new(:test_low, [0,0,1,1])
     end
+    
+    it "should support arbitrary vectoring methods" do
+      pending
+    end
   
     it "should find the closest vector " do
       @root_node.index_of_child_closest_to(@test_high).should == 0

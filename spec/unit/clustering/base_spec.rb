@@ -22,11 +22,13 @@ describe Clustering::Base do
     @clusterer << "some text"
   end
   
-  it "should create the node tree from the documents in the training set" do
-    @clusterer << "some text" << "some more text" << "even more text"
-    pending("remove global state (class vars) from Clustering::Node")
+  it "should create a node tree from the documents in the training set" do
+    @clusterer << "some text" << "some more text" << "even more text" << "yet more"
     # clusterer should have built the node tree, and I should be able to print it (at least)
-    #@clusterer.tree.print_tree
+    @clusterer.tree.should be_an_instance_of Clustering::Tree
+    @clusterer.root_node.should be_an_instance_of Clustering::Node
+    @clusterer.root_node.should have(2).children
+    @clusterer.root_node.children.each { |c| c.should have(2).children }
   end
   
 end
