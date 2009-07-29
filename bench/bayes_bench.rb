@@ -53,7 +53,7 @@ module BayesBench
     dirs.each do |key, dir|
       @data[key] = []
       Dir.glob(BENCH_DIR + "/fixtures/#{dir}/*").each do |email|
-        @data[key] << IO.read(email)
+        @data[key] << IO.read(email).force_encoding("ISO-8859-1") #, :open_args => "r:iso-8859-1:utf-8") # "r:iso-8859-1:utf-8"
       end
     end
     @accuracy_stats = AccuracyStats.new

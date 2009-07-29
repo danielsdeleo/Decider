@@ -6,6 +6,14 @@ require File.dirname(__FILE__) + '/../lib/decider'
 
 BENCH_DIR = File.dirname(__FILE__)
 
+unless "".respond_to?(:force_encoding)
+  class String
+    def force_encoding(*args)
+      self
+    end
+  end
+end
+
 module BenchHelper
   module Logging
     
