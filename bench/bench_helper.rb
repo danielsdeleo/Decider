@@ -52,4 +52,31 @@ module BenchHelper
     end
 
   end
+  
+  module SaCorpusData
+    
+    def fail_unless_sa_corpus_available
+      dirs = %w{easy_ham easy_ham_2 spam spam_2}.map { |subdir| BENCH_DIR + "/fixtures/" }
+      dirs.each do |dir|
+        unless File.exist?(dir)
+          fail_msg = "You need the Spam Assasin corpus to run the benchmark.\n\n" +
+          IO.read(BENCH_DIR + "/fixtures/README") 
+          fail(fail_msg)
+        end
+      end
+    end
+
+    def load_corpus_data
+      fail_unless_sa_corpus_available
+      dirs = {:training_ham => "easy_ham", :training_spam => "spam", :test_ham => "easy_ham_2", :test_spam => "spam_2"}
+      data = {}
+      dirs.each do |key, dir|
+        data[key] = []
+        Dir.glob(BENCH_DIR + "/fixtures/#{dir}/*").each do |email|
+          data[key] << IO.read(email).force_encoding("ISO-8859-1")
+        end
+      end
+      data
+    end
+  end
 end
