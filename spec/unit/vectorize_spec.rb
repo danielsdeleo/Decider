@@ -45,15 +45,14 @@ describe Vectorize do
       @vectorizer.stub!(:token_indices).and_return({"token1" => 0, "token2" => 1, "token3" => 2})
       @doc = mock("document")
       @doc.stub!(:tokens).and_return(["token1","token3", "token1", "token1"])
-      @vectorizer.stub!(:new_document).and_return(@doc)
     end
     
     it "should convert a document to a binary vector" do
-      @vectorizer.binary_vector("token1 token3 token1 token1").should == [1,0,1]
+      @vectorizer.binary_vector(@doc).should == [1,0,1]
     end
     
     it "should convert a document to a proportional frequency vector" do
-      @vectorizer.proportional_vector("token1 token3 token1 token1").should == [0.75, 0, 0.25]
+      @vectorizer.proportional_vector(@doc).should == [0.75, 0, 0.25]
     end
     
   end

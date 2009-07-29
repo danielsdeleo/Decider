@@ -5,7 +5,7 @@ module Decider
     
     def binary_vector(document)
       vector = empty_vector
-      new_document(document).tokens.each do |token|
+      document.tokens.each do |token|
         index_of_token = token_indices[token]
         vector[index_of_token] = 1 if index_of_token
       end
@@ -14,7 +14,7 @@ module Decider
     
     def proportional_vector(document)
       vector = empty_vector
-      token_frequencies = token_frequency_hsh(new_document(document).tokens)
+      token_frequencies = token_frequency_hsh(document.tokens)
       token_frequencies.each do |token, frequency|
         vector[token_indices[token]] = frequency
       end
