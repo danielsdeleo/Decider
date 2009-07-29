@@ -2,9 +2,6 @@
 # encoding: UTF-8
 require File.dirname(__FILE__) + '/bench_helper'
 
-N = 10000
-#N = 100
-
 module BayesBench
   
   class AccuracyStats
@@ -53,7 +50,7 @@ module BayesBench
     dirs.each do |key, dir|
       @data[key] = []
       Dir.glob(BENCH_DIR + "/fixtures/#{dir}/*").each do |email|
-        @data[key] << IO.read(email).force_encoding("ISO-8859-1") #, :open_args => "r:iso-8859-1:utf-8") # "r:iso-8859-1:utf-8"
+        @data[key] << IO.read(email).force_encoding("ISO-8859-1")
       end
     end
     @accuracy_stats = AccuracyStats.new
