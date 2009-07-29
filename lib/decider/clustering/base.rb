@@ -18,6 +18,10 @@ module Decider
         corpus << document
       end
       
+      def push(*args)
+        corpus.push(*args)
+      end
+      
       def sorted_classes
         [corpus]
       end
@@ -40,8 +44,6 @@ module Decider
         @tree = nil
         super
       end
-      
-      private
       
       def corpus
         @classes[:corpus]

@@ -8,13 +8,18 @@ describe Clustering::Base do
   end
   
   it "should create training set named :corpus" do
-    @clusterer.classes[:corpus].should be_an_instance_of(TrainingSet)
-    @clusterer.classes[:corpus].name.should == "corpus"
+    @clusterer.corpus.should be_an_instance_of(TrainingSet)
+    @clusterer.corpus.name.should == "corpus"
   end
   
   it "should add documents to the training set via #<<(doc text)" do
-    @clusterer.classes[:corpus].should_receive(:<<)
+    @clusterer.corpus.should_receive(:<<)
     @clusterer << "some text"
+  end
+  
+  it "should add named documents to the training set via #push" do
+    @clusterer.corpus.should_receive(:push).with(:the_doc_name, "and its text")
+    @clusterer.push(:the_doc_name, "and its text")
   end
   
   it "should invalidate the cache when adding a document" do
@@ -24,7 +29,6 @@ describe Clustering::Base do
   
   it "should create a node tree from the documents in the training set" do
     @clusterer << "some text" << "some more text" << "even more text" << "yet more"
-    # clusterer should have built the node tree, and I should be able to print it (at least)
     @clusterer.tree.should be_an_instance_of Clustering::Tree
     @clusterer.root_node.should be_an_instance_of Clustering::Node
     @clusterer.root_node.should have(2).children

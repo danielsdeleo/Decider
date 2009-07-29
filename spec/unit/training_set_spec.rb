@@ -5,7 +5,7 @@ require "moneta/memory"
 
 # Document is tricky to mock
 class DocMock
-  attr_reader :name
+  attr_reader :name, :text
   
   def initialize(name, text)
     @name, @text = name, text
@@ -50,6 +50,12 @@ describe TrainingSet do
                       "how TrainingSet names documents implicitly"
       @training_set << long_doc_text
       @training_set.documents.first.name.should == "some text..."
+    end
+    
+    it "should add documents with explicit names" do
+      @training_set.push("an_explicitly_named_document", "with its text")
+      @training_set.documents.first.name.should == "an_explicitly_named_document"
+      @training_set.documents.first.text.should == "with its text"
     end
   
     it "should get the tokens of stored documents" do

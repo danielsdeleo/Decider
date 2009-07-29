@@ -34,17 +34,20 @@ module Decider
     
     # Uses +document_string+ as a training document
     def <<(document_string)
+      push(document_string[0..9].strip + "...", document_string)
+    end
+    
+    def push(name, document_str)
       invalidate_cache
       
-      name = document_string[0..9].strip + "..."
-      
-      doc = new_document(name, document_string)
+      doc = new_document(name, document_str)
       @documents << doc
       
       doc.tokens.each do |token|
         @tokens[token] +=1
       end
       self
+      
     end
     
     def tokens
