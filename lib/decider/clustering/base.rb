@@ -30,7 +30,7 @@ module Decider
         unless @tree
           @tree = Tree.new
           corpus.documents.each do |doc|
-            @tree.insert(:name_tbd, binary_vector(doc))
+            @tree.insert(doc.name, binary_vector(doc))
           end
         end
         @tree

@@ -35,4 +35,9 @@ describe Clustering::Base do
     @clusterer.root_node.children.each { |c| c.should have(2).children }
   end
   
+  it "should name the nodes in the tree with document names" do
+    @clusterer.push(:a_named_doc, "should mean a named node")
+    @clusterer.root_node.children.first.name.should == "a_named_doc"
+  end
+  
 end
