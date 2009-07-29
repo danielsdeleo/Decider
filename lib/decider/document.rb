@@ -24,11 +24,11 @@ module Decider
       end
     end
 
-    attr_reader :raw, :additional_tokens, :training_set
+    attr_reader :name, :raw, :additional_tokens, :training_set
     attr_writer :domain_tokens
 
-    def initialize(raw_text)
-      @raw = raw_text
+    def initialize(name, raw_text)
+      @name, @raw = name.to_s, raw_text
       @domain_tokens, @additional_tokens = [], []
     end
 

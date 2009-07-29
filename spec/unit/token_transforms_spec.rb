@@ -17,13 +17,13 @@ describe TokenTransforms do
   context "converting raw tokens to domain tokens" do
     
     it "should convert basic text to tokens using {WS . , ; : \" '} as the delimeter set" do
-      doc = Document.new("the original.text,with;some:extra\"delimiters'amirite?yo")
+      doc = Document.new(:all_delimeters, "the original.text,with;some:extra\"delimiters'amirite?yo")
       doc.plain_text
       doc.domain_tokens.should == %w{ the original text with some extra delimiters amirite yo}
     end
     
     it "should convert URIs to tokens using {& ? \\\\ \\ \/\/ \/ = [ ] .. .} as the delimeter set" do
-      doc = Document.new(%q{a/URI/with?all[of]the=delimeters&in\\the..set.html})
+      doc = Document.new(:uri_delimeters, %q{a/URI/with?all[of]the=delimeters&in\\the..set.html})
       doc.uri
       doc.domain_tokens.should == %w{ a URI with all of the delimeters in the set html}
     end
@@ -33,7 +33,7 @@ describe TokenTransforms do
   context "transforming a document after domain tokens are set" do
     
     before(:each) do
-      @doc = Document.new("the original text")
+      @doc = Document.new(:simple_doc, "the original text")
       @doc.domain_tokens = %w{the original text}
     end
     

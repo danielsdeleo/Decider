@@ -3,8 +3,8 @@
 module Decider
   module DocumentHelper
     
-    def new_document(string)
-      doc = Document.new(string)
+    def new_document(name, string)
+      doc = Document.new(name, string)
       document_callback.call(doc)
       doc
     end

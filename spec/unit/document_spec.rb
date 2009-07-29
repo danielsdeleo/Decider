@@ -6,7 +6,12 @@ describe Document do
   context "on initialization" do
 
     it "should initialize with a raw string" do
-      Document.new("the original text").raw.should == "the original text"
+      Document.new(:simple_doc, "the original text").raw.should == "the original text"
+    end
+    
+    it "should have a name" do
+      Document.new(:simple_doc, "the original text").name.should == "simple_doc"
+      
     end
 
   end
@@ -14,7 +19,7 @@ describe Document do
   context "storing token manipulations" do
 
     before(:each) do
-      @doc = Document.new("the original text")
+      @doc = Document.new(:a_simple_doc, "the original text")
     end
 
     it "should provide an array for domain tokens" do
@@ -47,7 +52,7 @@ describe Document do
   context "returning tokens" do
 
     before(:each) do
-      @doc = Document.new("the original text text")
+      @doc = Document.new(:the_og, "the original text text")
       @doc.domain_tokens = %w{ the original text text }
       @doc.push_additional_tokens ["the original", "original text", "text text"]
     end
@@ -71,7 +76,7 @@ describe Document do
 
     it "should provide a wrapper for include" do
       Document.custom_transforms(TestCustomTransforms)
-      doc = Document.new("abc def")
+      doc = Document.new(:abcdef, "abc def")
       doc.plain_text
       doc.succ_it
       doc.additional_tokens.should == %w{abd deg}

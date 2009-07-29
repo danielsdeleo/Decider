@@ -11,7 +11,7 @@ module Decider
     
       # Gives the probabilites for +document_text+ to be in each class.
       def scores(document_text)
-        bayesian_scores_for_tokens(new_document(document_text).tokens)
+        bayesian_scores_for_tokens(new_document(:doc_to_test, document_text).tokens)
       end
     
       def bayesian_scores_for_tokens(tokens)

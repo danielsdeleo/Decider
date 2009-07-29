@@ -36,7 +36,9 @@ module Decider
     def <<(document_string)
       invalidate_cache
       
-      doc = new_document(document_string)
+      name = document_string[0..9].strip + "..."
+      
+      doc = new_document(name, document_string)
       @documents << doc
       
       doc.tokens.each do |token|

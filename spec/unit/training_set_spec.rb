@@ -5,9 +5,10 @@ require "moneta/memory"
 
 # Document is tricky to mock
 class DocMock
+  attr_reader :name
   
-  def initialize(text)
-    @text = text
+  def initialize(name, text)
+    @name, @text = name, text
   end
   
   def tokens
@@ -36,17 +37,24 @@ describe TrainingSet do
     before do
       doc_init_proc = lambda { |doc| doc }
       @training_set.stub!(:document_callback).and_return(doc_init_proc)
-      Document.stub!(:new).and_return { |text| DocMock.new(text)}
+      Document.stub!(:new).and_return { |name, text| DocMock.new(name, text)}
     end
     
-    it "should store training tokens" do
+    it "should store training documents" do
       @training_set << "parameter" << "other_parameter"
-      @training_set.tokens.should == ["parameter", "other_parameter"]
+      @training_set.should have(2).documents
+    end
+    
+    it "should name documents by truncating the text when using #<<" do
+      long_doc_text = "some text that is longer than 10 characters will show you " +
+                      "how TrainingSet names documents implicitly"
+      @training_set << long_doc_text
+      @training_set.documents.first.name.should == "some text..."
     end
   
-    it "should store training documents" do
-      @training_set << "one document" << "another document"
-      @training_set.should have(2).documents
+    it "should get the tokens of stored documents" do
+      @training_set << "parameter" << "other_parameter"
+      @training_set.tokens.should == ["parameter", "other_parameter"]
     end
   
     it "should increment the count for a token when given a duplicate" do
@@ -87,7 +95,7 @@ describe TrainingSet do
 
     
     before(:each) do
-      Document.stub!(:new).and_return { |text| DocMock.new(text)}
+      Document.stub!(:new).and_return { |name, text| DocMock.new(name, text)}
       doc_init_proc = lambda { |doc| doc }
       @training_set.stub!(:document_callback).and_return(doc_init_proc)
       TOKENS.each { |token| @training_set << token }
@@ -126,7 +134,7 @@ describe TrainingSet do
     
     it "should call the block when creating a document" do
       document = mock("mock doc")
-      @training_set.should_receive(:new_document).with("some text").and_return(document)
+      @training_set.should_receive(:new_document).with(/some text/, "some text").and_return(document)
       document.should_receive(:tokens).and_return([])
       @training_set << "some text"
     end
@@ -161,7 +169,7 @@ describe TrainingSet do
     end
     
     it "should load documents from a moneta store" do
-      docs = [DocMock.new("Doc A"), DocMock.new("Doc B")]
+      docs = [DocMock.new(:a, "Doc A"), DocMock.new(:b, "Doc B")]
       @kv_store["snoop::ts_name::documents"] = docs
       tokens = {"A" => 1, "B" => 1, "Doc" => 2}
       @kv_store["snoop::ts_name::tokens"] = tokens
