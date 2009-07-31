@@ -58,9 +58,9 @@ describe TrainingSet do
       @training_set.documents.first.text.should == "with its text"
     end
   
-    it "should get the tokens of stored documents" do
+    it "should sort and return the tokens of stored documents" do
       @training_set << "parameter" << "other_parameter"
-      @training_set.tokens.should == ["parameter", "other_parameter"]
+      @training_set.tokens.should == ["other_parameter", "parameter"]
     end
   
     it "should increment the count for a token when given a duplicate" do

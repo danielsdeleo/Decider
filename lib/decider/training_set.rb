@@ -51,7 +51,7 @@ module Decider
     end
     
     def tokens
-      @token_values ||= @tokens.keys
+      @token_values ||= @tokens.keys.sort
     end
     
     def term_frequency
