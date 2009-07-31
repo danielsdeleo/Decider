@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + "/../../spec_helper"
 describe Clustering::Base do
   
   before do
-    @clusterer = Clustering::Base.new
+    @clusterer = Clustering::Base.new { |d| d.plain_text }
   end
   
   it "should create training set named :corpus" do
@@ -25,6 +25,17 @@ describe Clustering::Base do
   it "should invalidate the cache when adding a document" do
     @clusterer.should_receive(:invalidate_cache)
     @clusterer << "some text"
+  end
+  
+  it "should return the vector representation of all documents" do
+    @clusterer.push(:quick_brown, "the quick brown").push(:brown_fox, "brown fox jumped over")
+    @clusterer.push(:lazy_dog, "lazy dog").push(:over_the, "over the quick brown dog")
+    index_of = @clusterer.__send__(:token_indices)
+    #p @clusterer.vectors
+    @clusterer.vectors["quick_brown"].length.should == 8
+    expected_vector = Array.new(8, 0)
+    %w{over the quick brown dog}.each {|word| expected_vector[index_of[word]] = 1}
+    @clusterer.vectors["over_the"].should == expected_vector
   end
   
   it "should create a node tree from the documents in the training set" do

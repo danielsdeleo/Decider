@@ -36,6 +36,14 @@ module Decider
         @tree
       end
       
+      def vectors
+        vectors = {}
+        corpus.documents.each do |doc|
+          vectors[doc.name] = binary_vector(doc)
+        end
+        vectors
+      end
+      
       def root_node
         tree.root
       end
