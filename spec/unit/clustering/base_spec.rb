@@ -31,7 +31,6 @@ describe Clustering::Base do
     @clusterer.push(:quick_brown, "the quick brown").push(:brown_fox, "brown fox jumped over")
     @clusterer.push(:lazy_dog, "lazy dog").push(:over_the, "over the quick brown dog")
     index_of = @clusterer.__send__(:token_indices)
-    #p @clusterer.vectors
     @clusterer.vectors["quick_brown"].length.should == 8
     expected_vector = Array.new(8, 0)
     %w{over the quick brown dog}.each {|word| expected_vector[index_of[word]] = 1}
