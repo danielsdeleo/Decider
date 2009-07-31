@@ -6,8 +6,7 @@ module Decider
     def binary_vector(document)
       vector = empty_vector
       document.tokens.each do |token|
-        index_of_token = token_indices[token]
-        vector[index_of_token] = 1 if index_of_token
+        vector[token_indices[token]] = 1
       end
       vector
     end
