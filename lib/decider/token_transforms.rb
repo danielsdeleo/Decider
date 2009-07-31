@@ -14,6 +14,16 @@ module Decider
       
     end
     
+    # Assigns the value passed to the document's constructor to domain_tokens.
+    # If you have documents that are already in array form, use this.
+    # ex:
+    #   doc = Document.new(:already_a_list, %w{a list of tokens})
+    #   doc.verbatim
+    #   doc.domain_tokens #=> ['a', 'list', 'of', 'tokens']
+    def verbatim
+      domain_tokens(raw)
+    end
+    
     # Splits the raw text of a document using { whitespace . , : ; " ' ? } as
     # the delimeter set.
     def plain_text

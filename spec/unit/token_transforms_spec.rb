@@ -28,6 +28,12 @@ describe TokenTransforms do
       doc.domain_tokens.should == %w{ a URI with all of the delimeters in the set html}
     end
     
+    it "should use an array of tokens verbatim" do
+      doc = Document.new(:a_list, %w{a list of words that is already in array form})
+      doc.verbatim
+      doc.domain_tokens.should == %w{a list of words that is already in array form}
+    end
+    
   end
   
   context "transforming a document after domain tokens are set" do
