@@ -43,6 +43,7 @@ describe Vectorize do
     
     before do
       @vectorizer.stub!(:token_indices).and_return({"token1" => 0, "token2" => 1, "token3" => 2})
+      @vectorizer.stub!(:empty_vector).and_return([0,0,0])
       @doc = mock("document")
       @doc.stub!(:tokens).and_return(["token1","token3", "token1", "token1"])
     end

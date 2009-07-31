@@ -46,7 +46,7 @@ module Decider
     end
     
     def invalidate_cache
-      @token_indices = nil
+      @token_indices, @empty_vector = nil, nil, nil
     end
     
     # "Averaging" binary vectors is sorta meaningless. Nevertheless,
@@ -68,21 +68,26 @@ module Decider
     def token_indices
       unless @token_indices
         @token_indices = {}
+        # bloomfilter slower if there's not many cache misses :-(
+        #                                  M,K,R
+        #@token_indices = BloomFilter.new(20,3,1)
         index = 0
         sorted_classes.each do |klass|
           klass.tokens.each do |token|
-            unless @token_indices.has_key?(token)
+            unless @token_indices[token]
               @token_indices[token] = index
               index += 1
             end
           end
         end
+        @empty_vector = Array.new(index, 0)
       end
-      @token_indices
+      return @token_indices
     end
     
     def empty_vector
-      Array.new(token_indices.size, 0)
+      @token_indices || token_indices
+      @empty_vector.dup
     end
     
     def euclidian_distance(vector1, vector2)
