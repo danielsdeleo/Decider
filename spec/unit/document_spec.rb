@@ -58,8 +58,10 @@ describe Document do
     end
 
     it "should return domain tokens and additional tokens" do
-      expected = (%w{ the original text text } + ["the original", "original text", "text text"]).sort
-      @doc.tokens.map{ |t| t.to_s }.sort.should == expected
+      expected = (%w{ the original text text } + ["the original", "original text", "text text"]).map do |t|
+        t.hash
+      end.sort
+      @doc.tokens.sort.should == expected
     end
     
   end

@@ -171,7 +171,7 @@ describe TrainingSet do
     it "should save documents and tokens to a moneta store" do
       @training_set.save
       @kv_store["snoop::ts_name::documents"].should have(2).documents
-      @kv_store["snoop::ts_name::tokens"].should ==  {"two"=>1, "doc"=>2, "one"=>1}
+      @kv_store["snoop::ts_name::tokens"].should ==  {"two".hash=>1, "doc".hash=>2, "one".hash=>1}
     end
     
     it "should load documents from a moneta store" do

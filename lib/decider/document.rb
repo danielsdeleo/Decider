@@ -48,7 +48,7 @@ module Decider
     end
 
     def tokens
-      (@domain_tokens + @additional_tokens)
+      @tokens ||= (@domain_tokens + @additional_tokens).map { |t| t.hash }
     end
 
   end
