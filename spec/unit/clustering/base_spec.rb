@@ -50,4 +50,9 @@ describe Clustering::Base do
     @clusterer.root_node.children.first.name.should == "a_named_doc"
   end
   
+  it "there should be a VectorDocument class and Base should use it via polymorphism" do
+    # or at least a document class that accepts an array of ints
+    pending("must sleep")
+  end
+  
 end
