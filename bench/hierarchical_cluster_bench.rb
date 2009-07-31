@@ -19,9 +19,9 @@ module HierarchicalClusterBench
     @data[:training_spam].each do |email|
       clusterer.push("spam: " + subject_line(email), email)
     end
-    @data[:test_ham].each do |email|
-      clusterer.push("ham: " + subject_line(email), email)
-    end
+    # @data[:test_ham].each do |email|
+    #   clusterer.push("ham: " + subject_line(email), email)
+    # end
     # @data[:test_spam].each do |email|
     #   clusterer.push("spam: " + subject_line(email), email)
     # end
@@ -42,15 +42,20 @@ Benchmark.bm(18) do |bm|
     HSB.load_data(clusterer)
   end
   
-  # TODO: time the document -> vector process
-  # gc_prevention = []
-  # bm.report("calc vector space") do
-  #   clusterer.corpus.documents.each {|d| gc_prevention << binary_vector(d)}
-  # end
-  
-  bm.report("create tree") do
-    puts clusterer.tree.to_formatted_s
+  bm.report("create token index hsh") do
+    clusterer.send(:token_indices)
   end
+  
+  #p "token count: #{clusterer.send(:token_indices).length}"
+  
+  bm.report("calculate vectors") do
+    clusterer.vectors
+  end
+  
+  #bm.report("create tree") do
+  #  clusterer.tree
+    #puts clusterer.tree.to_formatted_s
+  #end
   
 end
 
