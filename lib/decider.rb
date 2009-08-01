@@ -8,16 +8,13 @@ unless defined?(DECIDER_ROOT)
   DECIDER_ROOT = File.dirname(__FILE__) + '/'
 end
 
-module Decider
-  class DeciderError < StandardError
-  end
-end
-
+require DECIDER_ROOT + "decider/errors"
 require DECIDER_ROOT + "decider/core_extensions"
 require DECIDER_ROOT + "decider/stopwords"
 require DECIDER_ROOT + "decider/token_transforms"
 require DECIDER_ROOT + "decider/document"
 require DECIDER_ROOT + "decider/document_helper"
+require DECIDER_ROOT + "decider/vectors/abstract_base"
 require DECIDER_ROOT + "decider/vectorize"
 require DECIDER_ROOT + "decider/training_set"
 require DECIDER_ROOT + "decider/classifiers/base"
@@ -35,4 +32,3 @@ module Decider
     Classifier::Bayes.new(*args, &block)
   end
 end
-
