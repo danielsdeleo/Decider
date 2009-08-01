@@ -2,6 +2,11 @@
 
 module Decider
   module Vectors
+    
+    # The Base Class for various vector types. Vectors use a prototypal
+    # inheritance mechanism (like javascript). This is slightly more complicated
+    # but it helps avoid using class variables and facilites performance
+    # enhancements, such as duplicating arrays instead of creating new ones
     class AbstractBase
       
       class << self
