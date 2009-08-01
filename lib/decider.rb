@@ -1,11 +1,16 @@
 # encoding: UTF-8
 
 require "stemmer"
-require "bloomfilter" # igrigorik-bloomfilter-0.1.1 (1.8.x) || rjspotter-bloomfilter (1.9.x)
+#require "bloomfilter" # igrigorik-bloomfilter-0.1.1 (1.8.x) || rjspotter-bloomfilter (1.9.x)
 require "moneta"
 
 unless defined?(DECIDER_ROOT)
   DECIDER_ROOT = File.dirname(__FILE__) + '/'
+end
+
+module Decider
+  class DeciderError < StandardError
+  end
 end
 
 require DECIDER_ROOT + "decider/core_extensions"
@@ -22,6 +27,7 @@ require DECIDER_ROOT + "decider/clustering/node"
 require DECIDER_ROOT + "decider/clustering/base"
 
 module Decider
+  
   extend self
   
   # Convenience method for Classifier::Bayes.new

@@ -39,19 +39,12 @@ module Decider
     
     def push(name, document_str)
       invalidate_cache
-      
-      doc = new_document(name, document_str)
-      @documents << doc
-      
-      doc.tokens.each do |token|
-        @tokens[token] +=1
-      end
+      @documents << new_document(name, document_str)
       self
-      
     end
     
     def tokens
-      @token_values ||= @tokens.keys.sort
+      @token_values ||= collected_tokens.keys.sort
     end
     
     def term_frequency
@@ -63,7 +56,7 @@ module Decider
     end
     
     def count_of(token)
-      @tokens[token]
+      collected_tokens[token]
     end
     
     def doc_count
@@ -72,16 +65,26 @@ module Decider
     
     def save
       store[documents_key] = @documents
-      store[tokens_key] = @tokens
     end
     
     def load
       invalidate_cache
       @documents = store[documents_key]
-      @tokens = store[tokens_key]
     end
     
     private
+    
+    def collected_tokens
+      unless @collected_tokens
+        @collected_tokens = Hash.new {0}
+        @documents.each do |doc|
+          doc.tokens.each do |token|
+            @collected_tokens[token] += 1
+          end
+        end
+      end
+      @collected_tokens
+    end
     
     def store
       @owner.store
@@ -103,6 +106,7 @@ module Decider
       @owner.invalidate_cache
       @token_values = nil
       @term_frequency = nil
+      @collected_tokens = nil
     end
     
   end

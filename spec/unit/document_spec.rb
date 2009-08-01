@@ -64,6 +64,20 @@ describe Document do
       @doc.tokens.sort.should == expected
     end
     
+    it "should remove references to the original tokens" do
+      @doc.final
+      @doc.should have(7).tokens
+      @doc.instance_variable_get(:@domain_tokens).should be_nil
+      @doc.instance_variable_get(:@raw).should be_nil
+      @doc.instance_variable_get(:@additional_tokens).should be_nil
+    end
+    
+    it "should raise an error when you try to change the tokens after finalization" do
+      @doc.final
+      lambda {@doc.domain_tokens}.should raise_error(DocumentFinalized)
+      lambda {@doc.push_additional_tokens([])}.should raise_error(DocumentFinalized)
+    end
+    
   end
   
   context "to support extensibility" do

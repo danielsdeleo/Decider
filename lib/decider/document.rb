@@ -2,6 +2,9 @@
 
 module Decider
   
+  class DocumentFinalized < DeciderError
+  end
+  
   # Documents store the raw text used to create them as well as tokens extracted
   # from that text. Documents are initialized with the raw text of a document
   # then (typically) "visited upon" by a block that performs whatever operations
@@ -33,6 +36,7 @@ module Decider
     end
 
     def push_additional_tokens(tokens)
+      assert_not_finalized
       @additional_tokens += tokens
     end
     
@@ -40,6 +44,7 @@ module Decider
     # domain tokens. This allows you to avoid using <tt>self.domain_tokens = [...]</tt>
     # when writing token transform modules.
     def domain_tokens(new_domain_tokens=nil)
+      assert_not_finalized
       if new_domain_tokens
         @domain_tokens = new_domain_tokens
       else
@@ -49,6 +54,19 @@ module Decider
 
     def tokens
       @tokens ||= (@domain_tokens + @additional_tokens).map { |t| t.hash }
+    end
+    
+    
+    def final
+      tokens
+      @raw, @domain_tokens, @additional_tokens = nil, nil, nil
+      @finalized = true
+    end
+    
+    private
+    
+    def assert_not_finalized
+      raise DocumentFinalized, "tokens can't be set or accessed after document is finalized" if @finalized
     end
 
   end

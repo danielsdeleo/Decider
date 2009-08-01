@@ -141,7 +141,6 @@ describe TrainingSet do
     it "should call the block when creating a document" do
       document = mock("mock doc")
       @training_set.should_receive(:new_document).with(/some text/, "some text").and_return(document)
-      document.should_receive(:tokens).and_return([])
       @training_set << "some text"
     end
     
@@ -153,12 +152,9 @@ describe TrainingSet do
     #  |--training set "A"
     #  |
     #  `--training set "B" 
-    #       |--documents      
-    #       |--token "A" => count
-    #       `--token "B"=> count
+    #       `--documents      
     # 
     # classifier.name::training_set.name::documents=>[docs]
-    # classifier.name::training_set.name::tokens=>{tokens}
     
     before do
       @kv_store = Moneta::Memory.new
@@ -171,7 +167,6 @@ describe TrainingSet do
     it "should save documents and tokens to a moneta store" do
       @training_set.save
       @kv_store["snoop::ts_name::documents"].should have(2).documents
-      @kv_store["snoop::ts_name::tokens"].should ==  {"two".hash=>1, "doc".hash=>2, "one".hash=>1}
     end
     
     it "should load documents from a moneta store" do
@@ -179,9 +174,9 @@ describe TrainingSet do
       @kv_store["snoop::ts_name::documents"] = docs
       tokens = {"A" => 1, "B" => 1, "Doc" => 2}
       @kv_store["snoop::ts_name::tokens"] = tokens
+      @training_set.should_receive(:invalidate_cache)
       @training_set.load
       @training_set.documents.should == docs
-      @training_set.instance_variable_get(:@tokens).should == tokens
     end
     
   end
