@@ -16,15 +16,18 @@ module HierarchicalClusterBench
   
   def load_data(clusterer)
     @data = load_corpus_data
-    @data[:training_spam].each do |email|
-      clusterer.push("spam: " + subject_line(email), email)
-    end
-    # @data[:test_ham].each do |email|
-    #   clusterer.push("ham: " + subject_line(email), email)
-    # end
-    # @data[:test_spam].each do |email|
+    # @data[:training_spam].each do |email|
     #   clusterer.push("spam: " + subject_line(email), email)
     # end
+    # @data[:training_ham].each do |email|
+    #   clusterer.push("spam: " + subject_line(email), email)
+    # end
+    @data[:test_ham].each do |email|
+      clusterer.push("ham: " + subject_line(email), email)
+    end
+    @data[:test_spam].each do |email|
+      clusterer.push("spam: " + subject_line(email), email)
+    end
     
   end
   
@@ -32,6 +35,7 @@ end
 
 clusterer = Decider::Clustering::Base.new do |doc|
   doc.plain_text
+  doc.final
 end
 
 HSB = HierarchicalClusterBench
@@ -52,10 +56,13 @@ Benchmark.bm(18) do |bm|
     clusterer.vectors
   end
   
-  #bm.report("create tree") do
-  #  clusterer.tree
-    #puts clusterer.tree.to_formatted_s
-  #end
+  bm.report("create tree") do
+    clusterer.tree
+  end
+  
+  bm.report("print tree") do
+    puts clusterer.tree.to_formatted_s
+  end
   
 end
 
