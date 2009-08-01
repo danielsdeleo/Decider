@@ -4,23 +4,8 @@ module Decider
   module Vectors
     class Binary < AbstractBase
       
-      class << self
-        def prototype(token_index_hsh)
-          prototype = self.new(token_index_hsh)
-          def prototype.new(document)
-            new_vector = self.dup
-            new_vector.duplicated
-            new_vector.convert_document(document)
-            new_vector
-          end
-          prototype
-        end
-      end
-      
-      attr_reader :index_of
-      
       def initialize(token_index_hsh=nil)
-        @index_of = token_index_hsh
+        super
         @vector = Array.new(token_index_hsh.length, 0)
       end
       
@@ -45,6 +30,14 @@ module Decider
       def closeness(other_vector)
         other = other_vector.to_a
         @vector.dot(other).to_f / ((other.dot(other) + @vector.dot(@vector) - @vector.dot(other)))
+      end
+      
+      def average(other_vector)
+        avg_vector = duplicate
+        @vector.length.times do |i|
+          avg_vector.to_a[i] = (@vector[i].to_i + other_vector.to_a[i].to_i ) / 2
+        end
+        avg_vector
       end
       
     end
