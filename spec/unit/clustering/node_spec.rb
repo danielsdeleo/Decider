@@ -40,8 +40,12 @@ describe Clustering::Node do
   
   before do
     @root_node = C.new(:root, [0])
-    @high_vector = C.new(:high, [1,1,0,0])
-    @low_vector = C.new(:low, [0,0,1,1])
+    hv = Vectors::Binary.new({})
+    hv.instance_variable_set(:@vector, [1,1,0,0])
+    @high_vector = C.new(:high, hv)
+    lv = Vectors::Binary.new({})
+    lv.instance_variable_set(:@vector, [0,0,1,1])
+    @low_vector = C.new(:low, lv)
   end
   
   it "should attach the first two nodes to the root node" do
@@ -70,7 +74,7 @@ describe Clustering::Node do
   
     it "should create a new subnode with the best matching child" do
       subnode = @root_node.create_subnode(@test_high)
-      subnode.vector.should == [1,1,0,0]
+      subnode.vector.to_a.should == [1,1,0,0]
       subnode.should have(2).children
       subnode.children.should include(@high_vector)
       subnode.children.should include(@test_high)

@@ -49,11 +49,15 @@ describe Vectorize do
     end
     
     it "should convert a document to a binary vector" do
-      @vectorizer.binary_vector(@doc).should == [1,0,1]
+      @vectorizer.binary_vector(@doc).to_a.should == [1,0,1]
     end
     
     it "should convert a document to a proportional frequency vector" do
       @vectorizer.proportional_vector(@doc).should == [0.75, 0, 0.25]
+    end
+    
+    it "should convert a document to a sparse binary vector" do
+      @vectorizer.sparse_binary_vector(@doc).should == [0,2]
     end
     
   end
@@ -72,18 +76,8 @@ describe Vectorize do
       @vectorizer.pearson_coefficient([1,1,1], [0,0,0]).should == 1.0
     end
     
-    
-    # T(v1, v2) = v1.dot(v2) / (v1.dot(v1) + v2.dot(v2) - v1.dot(v2))
-    it "should compute a Tanimoto coefficient" do
-      @vectorizer.tanimoto_coefficient([1,0,1], [1,0,1]).should == 1.0
-    end
-    
     it "should average_vectors" do
       @vectorizer.average_vectors([1,1,0,0], [1,0,0,1]).should == [1.0, 0.5,0.0, 0.5]
-    end
-    
-    it "should AND binary vectors" do
-      @vectorizer.avg_binary_vectors([1,1,0,0], [1,0,0,1]).should == [1,0,0,0]
     end
     
   end

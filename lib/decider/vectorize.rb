@@ -4,11 +4,21 @@ module Decider
   module Vectorize
     
     def binary_vector(document)
-      vector = empty_vector
+      @binary_vector_prototype ||= Vectors::SparseBinary.prototype(token_indices)
+      @binary_vector_prototype.new(document)
+      #vector = empty_vector
+      #document.tokens.each do |token|
+      #  vector[token_indices[token]] = 1
+      #end
+      #vector
+    end
+    
+    def sparse_binary_vector(document)
+      vector = {}
       document.tokens.each do |token|
         vector[token_indices[token]] = 1
       end
-      vector
+      vector.keys.sort
     end
     
     def proportional_vector(document)
@@ -33,9 +43,9 @@ module Decider
       denominator == 0 ? 1.0 : covariance / denominator
     end
     
-    def tanimoto_coefficient(v1, v2)
-      v1.dot(v2) / ((v1.dot(v1) + v2.dot(v2) - v1.dot(v2)))
-    end
+    #def tanimoto_coefficient(v1, v2)
+    #  v1.dot(v2) / ((v1.dot(v1) + v2.dot(v2) - v1.dot(v2)))
+    #end
     
     def average_vectors(v1, v2)
       avg = []
@@ -46,20 +56,21 @@ module Decider
     end
     
     def invalidate_cache
-      @token_indices, @empty_vector = nil, nil, nil
+      @token_indices, @empty_vector = nil, nil
+      @binary_vector_prototype = nil
     end
     
     # "Averaging" binary vectors is sorta meaningless. Nevertheless,
     # this is needed to create the virtual nodes (i.e. groups) for 
     # Clustering::Node. This method uses "AND" logic. "OR" might be the better
     # choice...
-    def avg_binary_vectors(v1,v2)
-      avg = []
-      v1.size.times do |i|
-        avg << (v1[i].to_i + v2[i].to_i) / 2 
-      end
-      avg
-    end
+    # def avg_binary_vectors(v1,v2)
+    #   avg = []
+    #   v1.size.times do |i|
+    #     avg << (v1[i].to_i + v2[i].to_i) / 2 
+    #   end
+    #   avg
+    # end
     
     private
     

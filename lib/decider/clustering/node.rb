@@ -46,7 +46,7 @@ module Decider
       
       def create_subnode(node)
         closest_child = @children.delete_at(index_of_child_closest_to(node))
-        avg_vector = avg_binary_vectors(closest_child.vector, node.vector)
+        avg_vector = closest_child.vector.average(node.vector)
         subnode = self.class.new(subnode_name(closest_child, node), avg_vector)
         subnode.attach(closest_child).attach(node)
       end
@@ -54,7 +54,7 @@ module Decider
       def index_of_child_closest_to(node)
         index_of_closest_node, best_distance_measure = 0, 0.0
         @children.size.times do |i|
-          distance_measure = tanimoto_coefficient(@children[i].vector, node.vector)
+          distance_measure = @children[i].vector.closeness(node.vector)
           if distance_measure > best_distance_measure
             best_distance_measure = distance_measure
             index_of_closest_node = i
