@@ -7,7 +7,7 @@ module Decider
   
   class NotImplementedError < DeciderError
     def initialize(klass, method)
-      super("#{klass.name} expects #{method.to_s} to be defined in subclasses")
+      super("#{klass.name} expects ##{method.to_s} to be defined by a subclass")
     end
   end
   
