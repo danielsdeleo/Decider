@@ -25,6 +25,7 @@ require DECIDER_ROOT + "decider/classifiers/anomaly"
 require DECIDER_ROOT + "decider/clustering/bk_tree"
 require DECIDER_ROOT + "decider/clustering/node"
 require DECIDER_ROOT + "decider/clustering/base"
+require DECIDER_ROOT + "decider/clustering/hierarchical"
 
 module Decider
   

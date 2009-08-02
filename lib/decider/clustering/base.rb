@@ -8,10 +8,10 @@ module Decider
       include Vectorize
       include DocumentHelper
       
-      def initialize(&block)
-        @classes = {}
+      def initialize(vector_type=nil, &block)
+        @vector_class = ("vectors/" + (vector_type ? vector_type.to_s : "sparse_binary")).to_const
         self.document_callback = block if block_given?
-        @classes[:corpus] = TrainingSet.new(:corpus, self, &document_callback)
+        @classes = {:corpus => TrainingSet.new(:corpus, self, &document_callback) }
       end
       
       def <<(document)
@@ -26,30 +26,11 @@ module Decider
         [corpus]
       end
       
-      def tree
-        unless @tree
-          @tree = Tree.new
-          corpus.documents.each do |doc|
-            @tree.insert(doc.name, binary_vector(doc))
-          end
-        end
-        @tree
-      end
-      
-      def vectors
-        vectors = {}
-        corpus.documents.each do |doc|
-          vectors[doc.name] = binary_vector(doc)
-        end
-        vectors
-      end
-      
-      def root_node
-        tree.root
+      def vector_class
+        @vector_class
       end
       
       def invalidate_cache
-        @tree = nil
         super
       end
       

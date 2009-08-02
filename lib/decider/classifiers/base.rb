@@ -10,10 +10,8 @@ module Decider
     
       include DocumentHelper
     
-      # Creates a new classifier of type +algorithm+ with one or more classes.
-      # Currently, only a Bayesian algorithm is implemented, so the +algorithm+
-      # term is actually meaningless.
-      # Symbols are preferred for class names.
+      # Creates a new classifier with one or more classes. Currently, only a
+      # Bayesian algorithm is implemented. Symbols are preferred for class names.
       # The optional block controls how documents get tokenized. The default
       # tokenization strategy is to split tokens on whitespace or . , ; : " ' and ?
       # characters, and then stem the results. See Document and TokenTransforms for
@@ -37,7 +35,8 @@ module Decider
       #   classifier.ham << "something you actually want to read"
       #
       # The values returned by +spam+ and +ham+ in the above example are instances 
-      # of the TrainingSet class.
+      # of the TrainingSet class; same as with arrays, TrainingSet#<< returns
+      # the training set itself, so you can chain insertions.
       # 
       # You also get predicate (?) methods, like this:
       #
