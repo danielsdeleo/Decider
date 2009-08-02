@@ -1,7 +1,7 @@
 require "rubygems"
 require File.dirname(__FILE__) + "/../lib/decider"
 
-c = Decider.classifier(:bayes, :spam, :ham) do |doc|
+c = Decider.classifier(:spam, :ham) do |doc|
   doc.plain_text
   doc.ngrams(2..3)
   doc.stem
