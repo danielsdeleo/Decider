@@ -33,7 +33,7 @@ module HierarchicalClusterBench
   
 end
 
-clusterer = Decider::Clustering::Base.new do |doc|
+clusterer = Decider::Clustering::Hierarchical.new do |doc|
   doc.plain_text
   doc.final
 end

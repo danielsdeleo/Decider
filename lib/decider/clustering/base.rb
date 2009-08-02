@@ -9,7 +9,7 @@ module Decider
       include DocumentHelper
       
       def initialize(vector_type=nil, &block)
-        @vector_class = ("vectors/" + (vector_type ? vector_type.to_s : "sparse_binary")).to_const
+        @vector_class = ("decider/vectors/" + (vector_type ? vector_type.to_s : "sparse_binary")).to_const
         self.document_callback = block if block_given?
         @classes = {:corpus => TrainingSet.new(:corpus, self, &document_callback) }
       end

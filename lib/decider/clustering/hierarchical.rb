@@ -8,7 +8,7 @@ module Decider
         unless @tree
           @tree = Tree.new
           corpus.documents.each do |doc|
-            @tree.insert(doc.name, binary_vector(doc))
+            @tree.insert(doc.name, vector(doc))
           end
         end
         @tree
@@ -17,7 +17,7 @@ module Decider
       def vectors
         vectors = {}
         corpus.documents.each do |doc|
-          vectors[doc.name] = binary_vector(doc)
+          vectors[doc.name] = vector(doc)
         end
         vectors
       end

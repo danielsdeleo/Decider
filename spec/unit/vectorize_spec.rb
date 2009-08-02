@@ -49,7 +49,9 @@ describe Vectorize do
     end
     
     it "should convert a document to a binary vector" do
-      @vectorizer.binary_vector(@doc).to_a.should == [1,0,1]
+      @vectorizer.stub!(:vector_class).and_return(Vectors::Binary)
+      @vectorizer.vector(@doc).should be_an_instance_of(Vectors::Binary)
+      @vectorizer.vector(@doc).to_a.should == [1,0,1]
     end
     
     it "should convert a document to a proportional frequency vector" do
@@ -57,7 +59,9 @@ describe Vectorize do
     end
     
     it "should convert a document to a sparse binary vector" do
-      @vectorizer.sparse_binary_vector(@doc).should == [0,2]
+      @vectorizer.stub!(:vector_class).and_return(Vectors::SparseBinary)
+      @vectorizer.vector(@doc).should be_an_instance_of(Vectors::SparseBinary)
+      @vectorizer.vector(@doc).to_a.should == [1,0,1]
     end
     
   end
