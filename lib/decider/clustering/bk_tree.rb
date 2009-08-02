@@ -14,7 +14,9 @@ module Decider
         @root.attach(Node.new(name, vector))
       end
       
-      def nearest_neighbors(k, limit, target_vector)
+      # Finds all of the neighboring nodes within +limit+ distance
+      # from +target_vector+
+      def nearest_neighbors(limit, target_vector)
         nodes_to_test = [@root]
         neighbors = []
         while node = nodes_to_test.shift

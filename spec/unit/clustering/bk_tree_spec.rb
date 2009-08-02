@@ -99,8 +99,8 @@ describe Clustering::BkTree do
       @bk_tree
     end
     
-    it "should find the k nearest neighbors" do
-      node_names =  @bk_tree.nearest_neighbors(5, 1, vector_from_array([1,1,1,1,1])).map do |v|
+    it "should find the nearest neighbors within a given distance" do
+      node_names =  @bk_tree.nearest_neighbors(1, vector_from_array([1,1,1,1,1])).map do |v|
         v.name.to_s
       end
       node_names.should have(5).items
