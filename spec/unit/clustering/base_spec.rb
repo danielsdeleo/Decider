@@ -33,7 +33,7 @@ describe Clustering::Base do
     index_of = @clusterer.__send__(:token_indices)
     @clusterer.vectors["quick_brown"].to_a.length.should == 8
     expected_vector = Array.new(8, 0)
-    %w{over the quick brown dog}.each {|word| expected_vector[index_of[word.hash]] = 1}
+    %w{over the quick brown dog}.each {|word| expected_vector[index_of[word]] = 1}
     @clusterer.vectors["over_the"].to_a.should == expected_vector
   end
   
