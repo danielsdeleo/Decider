@@ -16,7 +16,7 @@ module Decider
     
       def bayesian_scores_for_tokens(tokens)
         result = {}
-        if classes.count == 2
+        if classes.size == 2
           class_name, other_class = class_names
           result[class_name] = probability_of_tokens_in_class(class_name, tokens)
           result[other_class] = 1 - result[class_name]

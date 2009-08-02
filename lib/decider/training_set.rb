@@ -60,7 +60,7 @@ module Decider
     end
     
     def doc_count
-      @documents.count
+      @documents.size
     end
     
     def save
