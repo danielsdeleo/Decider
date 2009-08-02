@@ -3,12 +3,24 @@
 module Decider
   module Vectors
     class Binary < AbstractBase
+      attr_accessor :vector
+      
+      class << self
+        # Creates a new binary vector from the given array. This is used to
+        # facilitate testing.
+        def from_array(ary)
+          v = self.new({})
+          v.vector = ary
+          v
+        end
+      end
       
       def initialize(token_index_hsh=nil)
         super
         @vector = Array.new(token_index_hsh.length, 0)
       end
       
+      # Returns the array representation of the vector
       def to_a
         @vector
       end
@@ -30,6 +42,15 @@ module Decider
       def closeness(other_vector)
         other = other_vector.to_a
         @vector.dot(other).to_f / ((other.dot(other) + @vector.dot(@vector) - @vector.dot(other)))
+      end
+      
+      def distance(other_vector)
+        #@vector.length - @vector.dot(other_vector.to_a)
+        distance = 0
+        @vector.length.times do |i|
+          distance += 1 if @vector[i].to_i != other_vector.to_a[i].to_i
+        end
+        distance
       end
       
       def average(other_vector)

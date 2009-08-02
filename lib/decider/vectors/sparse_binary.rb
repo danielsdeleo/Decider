@@ -42,6 +42,10 @@ module Decider
         items_in_both.to_f / (items_in_both + items_in_self_only + items_in_other_only)
       end
       
+      def distance(other)
+        (@sparse_vector - other.sparse_vector).length + (other.sparse_vector - @sparse_vector).length
+      end
+      
       def average(other)
         new_sparse_vector_ary = @sparse_vector & other.sparse_vector
         new_vector = duplicate
