@@ -7,16 +7,6 @@ describe Clustering::Hierarchical do
     @clusterer = Clustering::Hierarchical.new { |d| d.plain_text }
   end
   
-  it "should return the vector representation of all documents" do
-    @clusterer.push(:quick_brown, "the quick brown").push(:brown_fox, "brown fox jumped over")
-    @clusterer.push(:lazy_dog, "lazy dog").push(:over_the, "over the quick brown dog")
-    index_of = @clusterer.__send__(:token_indices)
-    @clusterer.vectors["quick_brown"].to_a.length.should == 8
-    expected_vector = Array.new(8, 0)
-    %w{over the quick brown dog}.each {|word| expected_vector[index_of[word]] = 1}
-    @clusterer.vectors["over_the"].to_a.should == expected_vector
-  end
-  
   it "should create a node tree from the documents in the training set" do
     @clusterer << "some text" << "even more text" << "some more text" << "yet more"
     puts @clusterer.tree.to_formatted_s

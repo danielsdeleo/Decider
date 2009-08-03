@@ -14,14 +14,6 @@ module Decider
         @tree
       end
       
-      def vectors
-        vectors = {}
-        corpus.documents.each do |doc|
-          vectors[doc.name] = vector(doc)
-        end
-        vectors
-      end
-      
       def root_node
         tree.root
       end

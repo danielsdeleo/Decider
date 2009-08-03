@@ -30,6 +30,14 @@ module Decider
         @vector_class
       end
       
+      def vectors
+        vectors = {}
+        corpus.documents.each do |doc|
+          vectors[doc.name] = vector(doc)
+        end
+        vectors
+      end
+      
       def invalidate_cache
         super
       end
