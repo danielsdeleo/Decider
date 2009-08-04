@@ -27,7 +27,7 @@ module Math
 
   def avg(pop)
     total = pop.inject(0) { |sum, n| sum + n }
-    total.to_f / pop.count.to_f
+    total.to_f / pop.size.to_f
   end
   
   def sum_floats(array)

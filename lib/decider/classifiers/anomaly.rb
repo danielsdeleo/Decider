@@ -31,7 +31,7 @@ module Decider
       # is 3+ Standard Deviations from what the classifier thinks is "normal", returns
       # true, otherwise false
       def anomalous?(document_text)
-        raise "I don't do anomaly detection on more than one class right now" if @classes.count > 1
+        raise "I don't do anomaly detection on more than one class right now" if @classes.size > 1
         @classes.values.first.anomaly_score_of_document(document_text) > 3
       end
     
