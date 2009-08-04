@@ -26,6 +26,7 @@ require DECIDER_ROOT + "decider/clustering/bk_tree"
 require DECIDER_ROOT + "decider/clustering/node"
 require DECIDER_ROOT + "decider/clustering/base"
 require DECIDER_ROOT + "decider/clustering/hierarchical"
+require DECIDER_ROOT + "decider/clustering/nearest_nodes"
 
 module Decider
   
