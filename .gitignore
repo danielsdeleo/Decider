@@ -1,3 +1,3 @@
-bench/fixtures/200*.bz2
-bench/fixtures/easy_ham*
-bench/fixtures/spam*
+benchmark/fixtures/200*.bz2
+benchmark/fixtures/easy_ham*
+benchmark/fixtures/spam*
