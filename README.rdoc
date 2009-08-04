@@ -21,6 +21,8 @@ The default configuration is about 96% accurate as an email spam classifier.
 
 * Persist (Save) with Moneta[http://github.com/wycats/moneta]. Pretty much any storage mechanism that's available in ruby is supported. Save to a database and implement distributed classification if you like.
 
+* Clustering Analysis. Useful for recommendation algorithms.
+
 = Getting Started
 
   c = Decider.classifier(:spam, :ham) do |doc|
