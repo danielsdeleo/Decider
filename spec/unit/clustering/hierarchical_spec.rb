@@ -9,7 +9,7 @@ describe Clustering::Hierarchical do
   
   it "should create a node tree from the documents in the training set" do
     @clusterer << "some text" << "even more text" << "some more text" << "yet more"
-    puts @clusterer.tree.to_formatted_s
+    #puts @clusterer.tree.to_formatted_s
     @clusterer.tree.should be_an_instance_of Clustering::Tree
     @clusterer.root_node.should be_an_instance_of Clustering::Node
     @clusterer.root_node.should have(2).children
