@@ -31,6 +31,14 @@ module Decider
         neighbors
       end
       
+      def to_formatted_s
+        root ? root.to_formatted_s : ""
+      end
+      
+      def size
+        root ? 1 + root.size : 0
+      end
+      
       class Node
         attr_reader :name, :vector, :children
         
@@ -63,6 +71,10 @@ module Decider
           @children.select { |k,v| k >= min && k <= max }.map do |kv_pair|
             kv_pair.last
           end
+        end
+        
+        def size
+          @children.size + @children.inject(0) { |sum, child| sum + child.last.size }
         end
 
       end

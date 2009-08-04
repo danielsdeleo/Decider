@@ -96,7 +96,6 @@ describe Clustering::BkTree do
         @zeroes_vectors << v
         @bk_tree.insert("ones_#{i}".to_sym, v)
       end
-      @bk_tree
     end
     
     it "should find the nearest neighbors within a given distance" do
@@ -105,6 +104,20 @@ describe Clustering::BkTree do
       end
       node_names.should have(5).items
       node_names.each {|n| n.should match(/ones_/)}
+    end
+    
+    it "should delegate #to_formatted_s to the root node" do
+      @bk_tree.root.should_receive(:to_formatted_s)
+      @bk_tree.to_formatted_s
+    end
+    
+    it "should return '' for #to_formatted_s if the root node is nil" do
+      lambda {Clustering::BkTree.new.to_formatted_s}.should_not raise_error(NoMethodError)
+    end
+    
+    it "should give its size" do
+      Clustering::BkTree.new.size.should == 0
+      @bk_tree.size.should == 10
     end
     
   end
