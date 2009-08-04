@@ -21,7 +21,7 @@ The default configuration is about 96% accurate as an email spam classifier.
 
 * Persist (Save) with Moneta[http://github.com/wycats/moneta]. Pretty much any storage mechanism that's available in ruby is supported. Save to a database and implement distributed classification if you like.
 
-* Clustering Analysis. Useful for recommendation algorithms.
+* Clustering Analysis. Useful for recommendation algorithms. (In Progress)
 
 = Getting Started
 
@@ -45,3 +45,5 @@ The default configuration is about 96% accurate as an email spam classifier.
   p c.classify("let's write code and drink some beers")
   # => :ham
   
+= Ruby 1.9 and Jruby
+Decider does a lot of math and is fairly computationally intensive, so you want all the extra speed you can get. It is regularly tested with Ruby 1.9 and Jruby. I highly recommend using one of these Ruby implementations if you plan on doing anything serious with Decider.
