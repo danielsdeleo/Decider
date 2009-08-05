@@ -25,6 +25,10 @@ describe Clustering::NearestNodes do
     it "should find documents within a given radius of a target" do
       @nearest_nodes.in_range(1, "some nonsense text").should have(3).results
     end
+    
+    it "should find the single nearest neighbor" do
+      @nearest_nodes.nearest("some drivel text").name.raw.should == "some drivel text"
+    end
   
     it "should find the K nearest neighbors" do
       pending

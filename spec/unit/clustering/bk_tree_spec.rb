@@ -106,6 +106,22 @@ describe Clustering::BkTree do
       node_names.each {|n| n.should match(/ones_/)}
     end
     
+    it "should find the single nearest neighbor" do
+      three_up2down = vector_from_array([1,1,1,0,0])
+      @bk_tree.insert(:three_up2down, three_up2down)
+      @bk_tree.nearest_neighbor(vector_from_array([1,1,1,0,0])).vector.should equal(three_up2down)
+    end
+    
+    it "should find the K nearest neighbors" do
+      results = @bk_tree.k_nearest_neighbors(5, vector_from_array([1,1,1,1,1]))
+      results.should have(5).nodes
+      results.each { |vector| vector.name.to_s.should match(/ones_/) }
+    end
+    
+    it "should alias k_nearest_neighbors as knn" do
+      @bk_tree.should respond_to(:knn)
+    end
+    
     it "should delegate #to_formatted_s to the root node" do
       @bk_tree.root.should_receive(:to_formatted_s)
       @bk_tree.to_formatted_s
@@ -122,4 +138,36 @@ describe Clustering::BkTree do
     
   end
   
+end
+
+describe Clustering::BkTree::Results do
+  R = Clustering::BkTree::Results
+  
+  it "should find the best single result when :results => 1" do
+    results = R.new(:results => 1)
+    results[:not_good_enough] = 5
+    results[:the_winner] = 2
+    results.distance_limit.should == 2
+    results.to_a.should == [:the_winner]
+  end
+  
+  it "should find the best N results when :results => N" do
+    results = R.new(:results => 3)
+    results[:fail] = 8
+    results[:ok] = 5
+    results[:better] = 4
+    results[:win] = 1
+    results.distance_limit.should == 5
+    results.to_a.should_not include(:fail)
+    results.should have(3).nodes
+  end
+  
+  it "should not accept results over an explicit limit" do
+    results = R.new(:distance => 3)
+    results[:fail] = 4
+    results[:close_but_not_a_fail] = 3
+    results[:good] = 2
+    results[:awesome] = 1
+    results.should have(3).nodes
+  end
 end

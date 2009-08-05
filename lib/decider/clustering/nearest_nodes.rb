@@ -8,7 +8,8 @@ module Decider
         unless @tree
           @tree = BkTree.new
           corpus.documents.each do |doc|
-            @tree.insert(doc.name, vector(doc))
+            #@tree.insert(doc.name, vector(doc))
+            @tree.insert(doc, vector(doc))
           end
         end
         @tree
@@ -20,8 +21,13 @@ module Decider
       end
       
       def in_range(range, document)
-        doc = new_document(:query_doc, document)
+        doc = new_document(:query_target, document)
         tree.nearest_neighbors(range, vector(doc))
+      end
+      
+      def nearest(document)
+        doc = new_document(:query_target, document)
+        tree.nearest_neighbor(vector(doc))
       end
       
     end
