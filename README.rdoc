@@ -45,5 +45,9 @@ The default configuration is about 96% accurate as an email spam classifier.
   p c.classify("let's write code and drink some beers")
   # => :ham
   
-= Ruby 1.9 and Jruby
-Decider does a lot of math and is fairly computationally intensive, so you want all the extra speed you can get. It is regularly tested with Ruby 1.9 and Jruby. I highly recommend using one of these Ruby implementations if you plan on doing anything serious with Decider.
+= Performance
+Decider has several benchmarks that also double as integration tests. These are run regularly and used to pinpoint CPU and RAM bottlenecks.
+
+Decider does a lot of math and is fairly computationally intensive, so you want all the extra speed you can get. It is regularly tested with Ruby 1.9 and Jruby. I highly recommend using one of these Ruby implementations if at all possible if you plan on doing anything serious with Decider.
+
+Also keep in mind that your dataset should reside entirely in memory or else you'll hit a brick wall.
