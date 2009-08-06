@@ -1,10 +1,10 @@
 # encoding: UTF-8
 require File.dirname(__FILE__) + "/../../spec_helper"
 
-describe Clustering::NearestNodes do
+describe Clustering::NearestNeighbors do
   
   before do
-    @nearest_nodes = Clustering::NearestNodes.new(:binary) { |doc| doc.plain_text }
+    @nearest_nodes = Clustering::NearestNeighbors.new(:binary) { |doc| doc.plain_text }
   end
   
   it "should create a BK-Tree" do

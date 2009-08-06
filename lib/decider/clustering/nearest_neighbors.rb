@@ -2,7 +2,7 @@
 
 module Decider
   module Clustering
-    class NearestNodes < Base
+    class NearestNeighbors < Base
       
       def tree
         unless @tree
