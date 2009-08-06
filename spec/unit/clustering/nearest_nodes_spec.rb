@@ -31,7 +31,15 @@ describe Clustering::NearestNodes do
     end
   
     it "should find the K nearest neighbors" do
-      pending
+      results = @nearest_nodes.k_nearest_neighbors(2, "more text")
+      results.should have(2).documents
+      results.each do |result|
+        result.name.raw.should match(/more text/)
+      end
+    end
+    
+    it "should respond to knn as an alias for k_nearest_neighbors" do
+      @nearest_nodes.should respond_to(:knn)
     end
   end
   
