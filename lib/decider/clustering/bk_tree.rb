@@ -103,11 +103,15 @@ module Decider
         end
         
         def attach(subnode)
-          distance = @vector.distance(subnode.vector)
-          if equidistant_child = @children[distance]
-            equidistant_child.attach(subnode)
-          else
-            @children[distance] = subnode
+          node_to_attach_to = self
+          while node_to_attach_to
+            distance = node_to_attach_to.vector.distance(subnode.vector)
+            if equidistant_child = node_to_attach_to.children[distance]
+              node_to_attach_to = equidistant_child
+            else
+              node_to_attach_to.children[distance] = subnode
+              node_to_attach_to = nil
+            end
           end
         end
         
