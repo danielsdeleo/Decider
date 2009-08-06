@@ -19,7 +19,7 @@ module Decider
       # To manually set a new classifier to use the defaults, you would create a
       # classifier like so:
       #
-      #   classifier = Classifier.new(:bayes, :spam, :ham) do |doc|
+      #   classifier = Classifier.new(:spam, :ham) do |doc|
       #     doc.plain_text
       #     doc.stem
       #   end
