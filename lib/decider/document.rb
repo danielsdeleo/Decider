@@ -32,7 +32,7 @@ module Decider
 
     def initialize(name, raw_text)
       @name, @raw = name.to_s, raw_text
-      @domain_tokens, @additional_tokens = [], []
+      @domain_tokens, @additional_tokens, @finalized = [], [], false
     end
 
     def push_additional_tokens(tokens)

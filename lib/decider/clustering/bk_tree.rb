@@ -9,7 +9,7 @@ module Decider
     class BkTree
       
       def root
-        @root
+        @root ||= nil
       end
       
       def insert(name, vector)
