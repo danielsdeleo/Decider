@@ -27,14 +27,14 @@ describe Clustering::NearestNeighbors do
     end
     
     it "should find the single nearest neighbor" do
-      @nearest_nodes.nearest("some drivel text").name.raw.should == "some drivel text"
+      @nearest_nodes.nearest("some drivel text").document.raw.should == "some drivel text"
     end
   
     it "should find the K nearest neighbors" do
       results = @nearest_nodes.k_nearest_neighbors(2, "more text")
       results.should have(2).documents
       results.each do |result|
-        result.name.raw.should match(/more text/)
+        result.document.raw.should match(/more text/)
       end
     end
     

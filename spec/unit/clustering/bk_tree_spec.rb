@@ -26,6 +26,12 @@ describe Clustering::BkTree do
     @bk_tree.root.vector.should == vector_obj
   end
   
+  it "should store the document with the node and have an accessor for it" do
+    @bk_tree.insert(:the_document, vector_from_array([1,0]))
+    @bk_tree.root.document.should == :the_document
+    @bk_tree.root.doc.should == :the_document
+  end
+  
   context "after the root node is created" do
     
     before do
@@ -68,7 +74,7 @@ describe Clustering::BkTree do
     
     it "should give the child nodes within a range " do
       #puts @bk_tree.root.to_formatted_s
-      node_names = @bk_tree.root.children_in_range(2, 1).map { |node| node.name }
+      node_names = @bk_tree.root.children_in_range(2, 1).map { |node| node.document }
       node_names.should include(:root_plus_1)
       node_names.should include(:root_plus_2)
       node_names.should include(:root_plus_2)
@@ -100,7 +106,7 @@ describe Clustering::BkTree do
     
     it "should find the nearest neighbors within a given distance" do
       node_names =  @bk_tree.nearest_neighbors(1, vector_from_array([1,1,1,1,1])).map do |v|
-        v.name.to_s
+        v.document.to_s
       end
       node_names.should have(5).items
       node_names.each {|n| n.should match(/ones_/)}
@@ -115,7 +121,7 @@ describe Clustering::BkTree do
     it "should find the K nearest neighbors" do
       results = @bk_tree.k_nearest_neighbors(5, vector_from_array([1,1,1,1,1]))
       results.should have(5).nodes
-      results.each { |vector| vector.name.to_s.should match(/ones_/) }
+      results.each { |vector| vector.document.to_s.should match(/ones_/) }
     end
     
     it "should alias k_nearest_neighbors as knn" do

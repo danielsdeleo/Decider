@@ -101,10 +101,11 @@ module Decider
       end
       
       class Node
-        attr_reader :name, :vector, :children
+        attr_reader :document, :vector, :children
+        alias :doc :document
         
-        def initialize(name, vector)
-          @name, @vector = name, vector
+        def initialize(document, vector)
+          @document, @vector = document, vector
           @children = {}
         end
         
