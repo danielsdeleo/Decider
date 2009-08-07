@@ -176,4 +176,10 @@ describe Clustering::BkTree::Results do
     results[:awesome] = 1
     results.should have(3).nodes
   end
+  
+  it "should give nil as the distance limit if there are less than max results results" do
+    results = R.new(:results => 5)
+    results[:not_more_than_max] = 1
+    results.distance_limit.should be_nil
+  end
 end

@@ -75,6 +75,7 @@ module Decider
         end
         
         def distance_limit
+          return nil unless !@max_results || @results.size >= @max_results
           unless @distance_limit
             @distance_limit = @distance || values.first
             @results.each do |node, distance|
@@ -135,6 +136,7 @@ module Decider
         end
         
         def children_in_range(center, distance)
+          return @children.values if center.nil?
           min, max = center - distance, center + distance
           min = 0 if min < 0
           @children.select { |k,v| k >= min && k <= max }.map do |kv_pair|
