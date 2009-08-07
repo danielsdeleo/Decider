@@ -1,4 +1,5 @@
 # encoding: UTF-8
+require "forwardable"
 
 module Decider
   module Clustering
@@ -56,40 +57,45 @@ module Decider
         results.to_a
       end
       
-      class Results < Hash
+      class Results
+        extend Forwardable
+        def_delegators :@results, :values, :size
         
         def initialize(opts={})
-          @results, @distance = opts[:results], opts[:distance]
+          @max_results, @distance = opts[:results], opts[:distance]
+          @results = {}
         end
         
-        def []=(key,value)
-          super if !distance_limit || value <= distance_limit
-          delete_worst if @results && size > @results
+        def []=(vector,distance)
+          if !distance_limit || distance <= distance_limit
+            @results[vector] = distance
+            delete_worst if @max_results && @results.size > @max_results
+          end
         end
         
         def distance_limit
           limit = @distance || values.first
-          self.each do |node, distance|
+          @results.each do |node, distance|
             limit = distance if limit && distance > limit
           end
           limit
         end
         
         def to_a
-          keys
+          @results.keys
         end
         
         private
         
         def delete_worst
-          worst_node = keys.first
-          worst_distance = self[worst_node]
-          self.each do |node, distance|
+          worst_node = @results.keys.first
+          worst_distance = @results[worst_node]
+          @results.each do |node, distance|
             if distance > worst_distance
               worst_node, worst_distance = node, distance
             end
           end
-          delete(worst_node)
+          @results.delete(worst_node)
         end
         
       end
