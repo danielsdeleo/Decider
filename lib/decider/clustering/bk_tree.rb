@@ -68,17 +68,20 @@ module Decider
         
         def []=(vector,distance)
           if !distance_limit || distance <= distance_limit
+            @distance_limit = nil
             @results[vector] = distance
             delete_worst if @max_results && @results.size > @max_results
           end
         end
         
         def distance_limit
-          limit = @distance || values.first
-          @results.each do |node, distance|
-            limit = distance if limit && distance > limit
+          unless @distance_limit
+            @distance_limit = @distance || values.first
+            @results.each do |node, distance|
+              @distance_limit = distance if distance > @distance_limit
+            end
           end
-          limit
+          @distance_limit
         end
         
         def to_a
