@@ -52,8 +52,9 @@ module Decider
         while node = nodes_to_test.shift
           distance_to_node = node.vector.distance(target_vector)
           results[node] = distance_to_node
-          nodes_to_test += node.children_in_range(results.distance_limit, distance_to_node)
+          nodes_to_test += node.children_in_range(distance_to_node, results.distance_limit)
         end
+        #puts "found nearest nodes at distances: #{results.scores.join(',')}"
         results.to_a
       end
       
@@ -62,7 +63,7 @@ module Decider
         def_delegators :@results, :values, :size
         
         def initialize(opts={})
-          @max_results, @distance = opts[:results], opts[:distance]
+          @max_results, @distance_limit = opts[:results], opts[:distance]
           @results = {}
         end
         
@@ -76,12 +77,13 @@ module Decider
         def distance_limit
           return nil unless !@max_results || @results.size >= @max_results
           unless @distance_limit
-            @distance_limit = @distance || values.first
-            @results.each do |node, distance|
-              @distance_limit = distance if distance > @distance_limit
-            end
+            @distance_limit = values.inject { |max_value, value| value > max_value ? value : max_value}
           end
           @distance_limit
+        end
+        
+        def scores
+          @results.values
         end
         
         def to_a
@@ -91,9 +93,9 @@ module Decider
         private
         
         def delete_worst
-          @distance_limit = nil
           worst_node = @results.keys.first
           worst_distance = @results[worst_node]
+          @distance_limit = nil
           @results.each do |node, distance|
             if distance > worst_distance
               worst_node, worst_distance = node, distance
@@ -129,17 +131,16 @@ module Decider
         def to_formatted_s(depth=0)
           prefix = "  " * depth
           str = "#{name}:\n"
-          @children.each do |distance, node|
+          children.each do |distance, node|
             str << prefix + "#{distance} => #{node.to_formatted_s(depth + 1)}\n"
           end
           str
         end
         
-        def children_in_range(center, distance)
-          return @children.values if center.nil?
-          min, max = center - distance, center + distance
-          min = 0 if min < 0
-          @children.select { |k,v| k >= min && k <= max }.map do |kv_pair|
+        def children_in_range(center, delta)
+          return children.values if delta.nil?
+          min, max = center - delta, center + delta
+          children.select { |d,node| d >= min && d <= max }.map do |kv_pair|
             kv_pair.last
           end
         end
