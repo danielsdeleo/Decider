@@ -1,6 +1,16 @@
 # encoding: UTF-8
 require File.dirname(__FILE__) + "/../../spec_helper"
 
+describe Clustering::BkTree::Node do
+  it "should give the correct nodes within a specified range" do
+    node = Clustering::BkTree::Node.new(nil, nil)
+    dummy_child_nodes = {1 => :one, 2 => :two, 3 => :three, 4 => :four, 5 => :five, 6 => :six, 7 => :seven}
+    node.stub!(:children).and_return(dummy_child_nodes)
+    node.children_in_range(3, 1).should include(:two, :three, :four)
+    node.children_in_range(2, 2).should include(:one, :two, :three, :four)
+  end
+end
+
 describe Clustering::BkTree do
   
   def vector_from_array(array)
