@@ -22,6 +22,7 @@ module Decider
       end
       
       attr_reader :index_of
+      alias :token_indices :index_of
       
       def initialize(token_index_hsh=nil)
         @index_of = token_index_hsh

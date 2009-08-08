@@ -7,7 +7,6 @@ module Decider
       
       def initialize(token_index_hsh=nil)
         super
-        @vector = Array.new(token_index_hsh.length, 0)
         @sparse_vector = []
       end
       
@@ -16,7 +15,7 @@ module Decider
       end
       
       def to_a
-        vector = @vector.dup
+        vector = Array.new(token_indices.length, 0)
         @sparse_vector.each do |index|
           vector[index] = 1
         end
