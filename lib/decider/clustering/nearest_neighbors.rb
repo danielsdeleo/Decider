@@ -8,7 +8,6 @@ module Decider
         unless @tree
           @tree = BkTree.new
           corpus.documents.each do |doc|
-            #@tree.insert(doc.name, vector(doc))
             @tree.insert(doc, vector(doc))
           end
         end
