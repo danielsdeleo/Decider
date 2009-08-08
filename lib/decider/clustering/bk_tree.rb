@@ -4,6 +4,7 @@ require "forwardable"
 module Decider
   module Clustering
     
+    # ==Burkhard-Keller Tree Implementation
     # A BK Tree to provide more efficient computation of nearest neighbors.
     # The wikipedia article on BK Trees kinda sucks, but this blog post is decent:
     # http://blog.notdot.net/2007/4/Damn-Cool-Algorithms-Part-1-BK-Trees
