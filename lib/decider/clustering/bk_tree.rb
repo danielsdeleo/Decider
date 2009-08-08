@@ -68,7 +68,6 @@ module Decider
         
         def []=(vector,distance)
           if !distance_limit || distance <= distance_limit
-            @distance_limit = nil
             @results[vector] = distance
             delete_worst if @max_results && @results.size > @max_results
           end
@@ -92,6 +91,7 @@ module Decider
         private
         
         def delete_worst
+          @distance_limit = nil
           worst_node = @results.keys.first
           worst_distance = @results[worst_node]
           @results.each do |node, distance|
