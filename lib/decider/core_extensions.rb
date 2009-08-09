@@ -86,4 +86,15 @@ class Array
     dot_product
   end
   
+  def partition(number_of_partitions)
+    resulting_arrays = []
+    partition_width = (size.to_f / number_of_partitions).ceil
+    number_of_partitions.times do |i|
+      min = (i) * partition_width
+      max = (i + 1) * partition_width - 1
+      resulting_arrays << self[Range.new(min, max)]
+    end
+    resulting_arrays
+  end
+  
 end

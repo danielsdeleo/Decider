@@ -61,4 +61,8 @@ describe Array do
     [3,5].dot([2,7,11]).should == (6 + 35)
     [2,7,11,13,17,19,23].dot([3,5]).should == (6 + 35)
   end
+  
+  it "should partition into N smaller sized arrays" do
+    [1,2,3,4,5,6,7,8,9,10,11,12].partition(3).should == [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+  end
 end
