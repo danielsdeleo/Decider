@@ -55,14 +55,14 @@ module NearestNeighborsClustersBench
         @similar_users_map = [] 
         threads = []
         users_to_recommend_to.partition(4).each do |some_of_the_users|
-          #threads << Thread.new do
+          threads << Thread.new do
             some_of_the_users.each do |user_id|
-              p "User: #{user_id}"
+              #p "User: #{user_id}"
               r = Recommendation.new(user_id, @users_repos)
               r.similar_users =  cluster.knn(k, users_repos[user_id])
               @similar_users_map << r
             end
-          #end
+          end
           threads.each { |t| t.join }
         end
       end

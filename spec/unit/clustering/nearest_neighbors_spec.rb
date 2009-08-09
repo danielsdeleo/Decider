@@ -41,6 +41,11 @@ describe Clustering::NearestNeighbors do
     it "should respond to knn as an alias for k_nearest_neighbors" do
       @nearest_nodes.should respond_to(:knn)
     end
+    
+    it "should allow a distance limit to be specified for a KNN search" do
+      @nearest_nodes.tree.should_receive(:knn).with(5, anything(), {:distance => 10})
+      @nearest_nodes.knn(5, "whatever", :distance => 10)
+    end
   end
   
 end

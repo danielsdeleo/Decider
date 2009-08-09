@@ -138,6 +138,12 @@ describe Clustering::BkTree do
       @bk_tree.should respond_to(:knn)
     end
     
+    it "should allow a distance limit to be specified for a KNN search" do
+      target = vector_from_array([1,1,1,1,1])
+      @bk_tree.should_receive(:find_nearest_neighbors).with(target, {:results => 3, :distance => 50})
+      @bk_tree.knn(3, target, :distance => 50)
+    end
+    
     it "should delegate #to_formatted_s to the root node" do
       @bk_tree.root.should_receive(:to_formatted_s)
       @bk_tree.to_formatted_s

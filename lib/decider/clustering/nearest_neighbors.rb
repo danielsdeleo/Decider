@@ -35,8 +35,8 @@ module Decider
       end
       
       # Finds the +k+ Nearest Neighbors of the given +document+
-      def k_nearest_neighbors(k, document)
-        tree.knn(k, vector(new_document(:query_target, document)))
+      def k_nearest_neighbors(k, document, opts={})
+        tree.knn(k, vector(new_document(:query_target, document)), opts)
       end
       
       alias :knn :k_nearest_neighbors

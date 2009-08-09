@@ -31,8 +31,9 @@ module Decider
         find_nearest_neighbors(target_vector, :results => 1).first
       end
       
-      def k_nearest_neighbors(k, target_vector)
-        find_nearest_neighbors(target_vector, :results => k)
+      def k_nearest_neighbors(k, target_vector, opts={})
+        opts[:results] = k
+        find_nearest_neighbors(target_vector, opts)
       end
       
       alias :knn :k_nearest_neighbors
@@ -55,8 +56,8 @@ module Decider
           results[node] = distance_to_node
           nodes_to_test += node.children_in_range(distance_to_node, results.distance_limit)
         end
-        puts "found nearest nodes at distances: #{results.scores.join(',')}"
-        puts "nearest nodes are: #{results.to_a.map {|n| n.doc.name}.join(",")}"
+        #puts "found nearest nodes at distances: #{results.scores.join(',')}"
+        #puts "nearest nodes are: #{results.to_a.map {|n| n.doc.name}.join(",")}"
         results.to_a
       end
       
@@ -77,8 +78,8 @@ module Decider
         end
         
         def distance_limit
-          return nil unless !@max_results || @results.size >= @max_results
           unless @distance_limit
+            return nil unless !@max_results || @results.size >= @max_results
             @distance_limit = values.inject { |max_value, value| value > max_value ? value : max_value}
           end
           @distance_limit
