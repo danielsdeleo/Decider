@@ -56,6 +56,7 @@ module Decider
           nodes_to_test += node.children_in_range(distance_to_node, results.distance_limit)
         end
         puts "found nearest nodes at distances: #{results.scores.join(',')}"
+        puts "nearest nodes are: #{results.to_a.map {|n| n.doc.name}.join(",")}"
         results.to_a
       end
       
