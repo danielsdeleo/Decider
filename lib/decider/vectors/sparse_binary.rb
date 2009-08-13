@@ -33,8 +33,6 @@ module Decider
       # For binary vectors, the Tanimoto coefficient is used.
       # http://en.wikipedia.org/wiki/Jaccard_index
       def closeness(other)
-        #other = other_vector.to_a
-        #@vector.dot(other).to_f / ((other.dot(other) + @vector.dot(@vector) - @vector.dot(other)))
         items_in_both = (@sparse_vector & other.sparse_vector).length
         items_in_self_only = (@sparse_vector - other.sparse_vector).length
         items_in_other_only = (other.sparse_vector - @sparse_vector).length

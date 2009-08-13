@@ -12,11 +12,6 @@ module Decider
       class << self
         def prototype(token_index_hsh)
           prototype = self.new(token_index_hsh)
-          def prototype.new(document)
-            new_vector = self.duplicate
-            new_vector.convert_document(document)
-            new_vector
-          end
           prototype
         end
       end
@@ -26,6 +21,12 @@ module Decider
       
       def initialize(token_index_hsh=nil)
         @index_of = token_index_hsh
+      end
+
+      def new(document)
+        new_vector = self.duplicate
+        new_vector.convert_document(document)
+        new_vector
       end
       
       def duplicated

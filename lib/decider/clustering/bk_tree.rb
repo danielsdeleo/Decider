@@ -80,7 +80,7 @@ module Decider
         def distance_limit
           unless @distance_limit
             return nil unless !@max_results || @results.size >= @max_results
-            @distance_limit = values.inject { |max_value, value| value > max_value ? value : max_value}
+            @distance_limit = @results.values.inject { |max_value, value| value > max_value ? value : max_value}
           end
           @distance_limit
         end
@@ -141,9 +141,9 @@ module Decider
         end
         
         def children_in_range(center, delta)
-          return children.values if delta.nil?
+          return @children.values if delta.nil?
           min, max = center - delta, center + delta
-          children.select { |d,node| d >= min && d <= max }.map do |kv_pair|
+          @children.select { |d,node| d >= min && d <= max }.map do |kv_pair|
             kv_pair.last
           end
         end
