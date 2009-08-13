@@ -58,7 +58,7 @@ module Decider
         end
         #puts "found nearest nodes at distances: #{results.scores.join(',')}"
         #puts "nearest nodes are: #{results.to_a.map {|n| n.doc.name}.join(",")}"
-        results.to_a
+        results.to_a.map { |node| node.doc }
       end
       
       class Results
@@ -121,7 +121,7 @@ module Decider
         def attach(subnode)
           node_to_attach_to = self
           while node_to_attach_to
-            distance = node_to_attach_to.vector.distance(subnode.vector)
+            distance = node_to_attach_to.vector.distance(subnode.vector).to_i
             if equidistant_child = node_to_attach_to.children[distance]
               node_to_attach_to = equidistant_child
             else

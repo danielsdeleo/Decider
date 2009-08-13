@@ -115,8 +115,8 @@ describe Clustering::BkTree do
     end
     
     it "should find the nearest neighbors within a given distance" do
-      node_names =  @bk_tree.nearest_neighbors(1, vector_from_array([1,1,1,1,1])).map do |v|
-        v.document.to_s
+      node_names =  @bk_tree.nearest_neighbors(1, vector_from_array([1,1,1,1,1])).map do |doc|
+        doc.to_s
       end
       node_names.should have(5).items
       node_names.each {|n| n.should match(/ones_/)}
@@ -125,13 +125,13 @@ describe Clustering::BkTree do
     it "should find the single nearest neighbor" do
       three_up2down = vector_from_array([1,1,1,0,0])
       @bk_tree.insert(:three_up2down, three_up2down)
-      @bk_tree.nearest_neighbor(vector_from_array([1,1,1,0,0])).vector.should equal(three_up2down)
+      @bk_tree.nearest_neighbor(vector_from_array([1,1,1,0,0])).should == :three_up2down
     end
     
     it "should find the K nearest neighbors" do
       results = @bk_tree.k_nearest_neighbors(5, vector_from_array([1,1,1,1,1]))
       results.should have(5).nodes
-      results.each { |vector| vector.document.to_s.should match(/ones_/) }
+      results.each { |document| document.to_s.should match(/ones_/) }
     end
     
     it "should alias k_nearest_neighbors as knn" do
