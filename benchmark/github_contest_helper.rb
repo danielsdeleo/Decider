@@ -1,33 +1,34 @@
-module NearestNeighborsClustersBench
+module GithubContest
   
   class DataSet
-    attr_reader :users_repos, :cluster, :repo_watch_count
+    attr_reader :users_repos, :users_repos_cluster, :repos_watchers_cluster, :repo_watch_count
     
     def initialize(vector_type=nil)
       @users_repos_cluster = Decider::Clustering::NearestNeighbors.new(vector_type) { |doc| doc.verbatim }
       @repos_watchers_cluster = Decider::Clustering::NearestNeighbors.new(vector_type) { |doc| doc.verbatim }
-      @similar_users_map = nil
+      @results = nil
       load_data_from_file
       users_to_recommend_to
     end
     
     def load_similar_users_from_file
-      @similar_users_map = []
+      @results = []
       IO.foreach(File.dirname(__FILE__) + "/fixtures/github-users-neighbors.txt") do |line|
         user_id, similar_users = line.strip.split(":")
         r = Recommendation.new(user_id.to_i, @users_repos, @repo_watch_count)
         r.similar_users_ids = similar_users.split(",").map { |similar_user| similar_user.to_i }
-        @similar_users_map << r
+        @results << r
       end
     end
     
     def load_data_from_file
-      @users_repos = Hash.new {Array.new}
-      @repos_watchers = Hash.new {Array.new}
+      @users_repos, @repos_watchers = {}, {}
       @repo_watch_count = Hash.new {0}
       IO.foreach(File.dirname(__FILE__) + "/fixtures/github-contest/data.txt") do |line|
         user, repo = line.strip.split(":").map { |id| id.to_i }
+        @repos_watchers[repo] ||= []
         @repos_watchers[repo] << user
+        @users_repos[user] ||= []
         @users_repos[user] << repo
         @repo_watch_count[repo] += 1
       end
@@ -60,33 +61,45 @@ module NearestNeighborsClustersBench
     
     # Creates a hash which maps user_id => [similar,user,ids]
     def similar_users_map(k=10)
-      map_users do |user_id|
-        cluster.knn(k, users_repos[user_id])
+      unless @results
+        @results = each_test_user do |user_id, results|
+          r = Recommendation.new(user_id, @users_repos, @repo_watch_count)
+          r.similar_users = @users_repos_cluster.knn(k, @users_repos[user_id])
+          results << r
+        end
       end
+      @results
     end
     
-    def slow_knn_users_map(k=10)
-      map_users do |user_id|
-        cluster.slow_knn(k, users_repos[user_id])
+    def similar_repos_map(k=5)
+      unless @results
+        @results = each_test_user do |user_id, results|
+          this_users_repos_watchers = {} 
+          @users_repos[user_id].each do |repo|
+            this_users_repos_watchers[repo] = @repos_watchers[repo]
+          end
+          r = Recommendation.new(user_id, @users_repos, @repo_watch_count)
+          #r.similar_users = @users_repos_cluster.knn(k, @users_repos[user_id])
+          results << r
+          
+          #repos_watchers_cluster.knn(k, )
+        end
       end
+      @results
     end
     
-    def map_users(&block)
-      unless @similar_users_map
-        @similar_users_map = [] 
-        threads = []
-        users_to_recommend_to.partition(4).each do |some_of_the_users|
-          threads << Thread.new do
-            some_of_the_users.each do |user_id|
-              r = Recommendation.new(user_id, @users_repos, @repo_watch_count)
-              r.similar_users = block.call(user_id)
-              @similar_users_map << r
-            end
+    def each_test_user(&block)
+      results = []
+      threads = []
+      users_to_recommend_to.partition(4).each do |some_of_the_users|
+        threads << Thread.new do
+          some_of_the_users.each do |user_id, results|
+            yield user_id, results
           end
         end
-        threads.each { |t| t.join }
       end
-      @similar_users_map
+      threads.each { |t| t.join }
+      results
     end
     
     def print_similar_users(fd=$stdout)
@@ -146,9 +159,7 @@ module NearestNeighborsClustersBench
     def weight_votes_for_popularity(repos_votes)
       results = {}
       repos_votes.each do |repo, votes|
-        #puts "votes before: #{votes}"
         results[repo] = votes * @repo_watch_count[repo]
-        #puts "factor: #{@repo_watch_count[repo]}"
       end
       results
     end
@@ -167,6 +178,4 @@ module NearestNeighborsClustersBench
     
   end
 end
-
-NNCB = NearestNeighborsClustersBench
 
