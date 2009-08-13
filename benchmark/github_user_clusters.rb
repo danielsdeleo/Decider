@@ -9,11 +9,11 @@ Benchmark.bm(20) do |results|
   end
   
   results.report("build tree:") do
-    github_data.users_repos_cluster.tree
+    github_data.generate_users_repos_tree
   end
   
   results.report("find KNN:") do
-    github_data.similar_users_map(50)
+    github_data.select_similar_users(50)
   end
 
   begin
