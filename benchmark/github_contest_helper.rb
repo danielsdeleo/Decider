@@ -1,10 +1,11 @@
 module NearestNeighborsClustersBench
   
   class DataSet
-    attr_reader :users_repos, :cluster
+    attr_reader :users_repos, :cluster, :repo_watch_count
     
-    def initialize
-      @cluster = Decider::Clustering::NearestNeighbors.new { |doc| doc.verbatim }
+    def initialize(vector_type=nil)
+      @users_repos_cluster = Decider::Clustering::NearestNeighbors.new(vector_type) { |doc| doc.verbatim }
+      @repos_watchers_cluster = Decider::Clustering::NearestNeighbors.new(vector_type) { |doc| doc.verbatim }
       @similar_users_map = nil
       load_data_from_file
       users_to_recommend_to
@@ -14,31 +15,39 @@ module NearestNeighborsClustersBench
       @similar_users_map = []
       IO.foreach(File.dirname(__FILE__) + "/fixtures/github-users-neighbors.txt") do |line|
         user_id, similar_users = line.strip.split(":")
-        r = Recommendation.new(user_id.to_i, @users_repos)
+        r = Recommendation.new(user_id.to_i, @users_repos, @repo_watch_count)
         r.similar_users_ids = similar_users.split(",").map { |similar_user| similar_user.to_i }
         @similar_users_map << r
       end
     end
     
     def load_data_from_file
-      @users_repos = {}
+      @users_repos = Hash.new {Array.new}
+      @repos_watchers = Hash.new {Array.new}
+      @repo_watch_count = Hash.new {0}
       IO.foreach(File.dirname(__FILE__) + "/fixtures/github-contest/data.txt") do |line|
         user, repo = line.strip.split(":").map { |id| id.to_i }
-      
-        @users_repos[user] ||= []
+        @repos_watchers[repo] << user
         @users_repos[user] << repo
+        @repo_watch_count[repo] += 1
       end
 
       stats.total_users = users_repos.size
       @users_repos
     end
     
-    def load_github_data_into_cluster
+    def load_users_repos_into_cluster
       @users_repos.each do |user, repos|
-        @cluster.push(user, repos) unless repos.size < 3
+        @users_repos_cluster.push(user, repos)
       end
     end
   
+    def load_repos_watchers_into_cluster
+      @repos_watchers.each do |repo, watchers|
+        @repos_watchers_cluster.push(repo, watchers)
+      end
+    end
+    
     def users_to_recommend_to
       @users_to_recommend_to ||= []
       if @users_to_recommend_to.empty?
@@ -51,20 +60,31 @@ module NearestNeighborsClustersBench
     
     # Creates a hash which maps user_id => [similar,user,ids]
     def similar_users_map(k=10)
+      map_users do |user_id|
+        cluster.knn(k, users_repos[user_id])
+      end
+    end
+    
+    def slow_knn_users_map(k=10)
+      map_users do |user_id|
+        cluster.slow_knn(k, users_repos[user_id])
+      end
+    end
+    
+    def map_users(&block)
       unless @similar_users_map
         @similar_users_map = [] 
         threads = []
         users_to_recommend_to.partition(4).each do |some_of_the_users|
           threads << Thread.new do
             some_of_the_users.each do |user_id|
-              #p "User: #{user_id}"
-              r = Recommendation.new(user_id, @users_repos)
-              r.similar_users =  cluster.knn(k, users_repos[user_id])
+              r = Recommendation.new(user_id, @users_repos, @repo_watch_count)
+              r.similar_users = block.call(user_id)
               @similar_users_map << r
             end
           end
-          threads.each { |t| t.join }
         end
+        threads.each { |t| t.join }
       end
       @similar_users_map
     end
@@ -76,14 +96,32 @@ module NearestNeighborsClustersBench
     end
     
     def recommendations
-      similar_users_map.map do |similar_user_recommendations|
-        similar_user_recommendations.ranked_repos
+      recommend = {}
+      similar_users_map.each do |similar_user_recommendations|
+        user_id = similar_user_recommendations.user_id
+        recommend[user_id] = []
+        repos_votes = similar_user_recommendations.ranked_repos
+        10.times do
+          recommend[user_id] << select_best_repo(repos_votes)
+        end
       end
+      recommend
     end
   
     def stats
       @stats ||= GithubStats.new
     end
+    
+    def select_best_repo(repos_votes={})
+      best_repo = repos_votes.keys.first
+      most_votes = repos_votes[best_repo]
+      repos_votes.each do |repo, votes|
+        best_repo, most_votes = repo, votes if votes > most_votes
+      end
+      repos_votes.delete(best_repo)
+      best_repo
+    end
+    
   end
   
   class GithubStats
@@ -93,16 +131,26 @@ module NearestNeighborsClustersBench
   class Recommendation
     attr_reader :user_id, :similar_users
     
-    def initialize(user_id, users_repos)
-      @user_id, @users_repos = user_id, users_repos
+    def initialize(user_id, users_repos, repo_watch_count)
+      @user_id, @users_repos, @repo_watch_count = user_id, users_repos, repo_watch_count
     end
     
-    def similar_users=(similar_users_vectors)
-      @similar_users = similar_users_vectors.map { |user| user.doc.name }
+    def similar_users=(similar_users_documents)
+      @similar_users = similar_users_documents.map { |doc| doc.name }
     end
     
     def similar_users_ids=(similar_users_ids)
       @similar_users = similar_users_ids
+    end
+    
+    def weight_votes_for_popularity(repos_votes)
+      results = {}
+      repos_votes.each do |repo, votes|
+        #puts "votes before: #{votes}"
+        results[repo] = votes * @repo_watch_count[repo]
+        #puts "factor: #{@repo_watch_count[repo]}"
+      end
+      results
     end
     
     def ranked_repos
@@ -113,6 +161,7 @@ module NearestNeighborsClustersBench
           watched_by_similar_users[repo] += 1 unless already_watching.include?(repo)
         end
       end
+      #weight_votes_for_popularity(watched_by_similar_users)
       watched_by_similar_users
     end
     

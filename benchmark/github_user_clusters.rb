@@ -1,11 +1,11 @@
 require File.dirname(__FILE__) + '/bench_helper'
 require File.dirname(__FILE__) + '/github_contest_helper'
 
-github_data = NearestNeighborsClustersBench::DataSet.new
+github_data = NearestNeighborsClustersBench::DataSet.new(:tanimoto)
 
 Benchmark.bm(20) do |results|
   results.report("load data:") do
-    github_data.load_github_data_into_cluster
+    github_data.load_users_repos_into_cluster
   end
   
   results.report("build tree:") do
@@ -13,7 +13,7 @@ Benchmark.bm(20) do |results|
   end
   
   results.report("find KNN:") do
-    github_data.similar_users_map(5)
+    github_data.similar_users_map(50)
   end
 
   begin
