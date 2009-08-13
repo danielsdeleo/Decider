@@ -27,14 +27,14 @@ describe Clustering::NearestNeighbors do
     end
     
     it "should find the single nearest neighbor" do
-      @nearest_nodes.nearest("some drivel text").document.raw.should == "some drivel text"
+      @nearest_nodes.nearest("some drivel text").raw.should == "some drivel text"
     end
   
     it "should find the K nearest neighbors" do
       results = @nearest_nodes.k_nearest_neighbors(2, "more text")
       results.should have(2).documents
       results.each do |result|
-        result.document.raw.should match(/more text/)
+        result.raw.should match(/more text/)
       end
     end
     
@@ -46,6 +46,14 @@ describe Clustering::NearestNeighbors do
       @nearest_nodes.tree.should_receive(:knn).with(5, anything(), {:distance => 10})
       @nearest_nodes.knn(5, "whatever", :distance => 10)
     end
+    
+    it "should have an un-optimized knn search for distance calculations that don't form a metric space" do
+      p results = @nearest_nodes.slow_knn(3, "some nonsense text")
+      results.should have(3).documents
+      # results.should include("the expected results")
+      pending
+    end
+    
   end
   
 end
