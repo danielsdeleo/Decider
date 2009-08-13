@@ -1,6 +1,6 @@
 module GithubContest
   
-  CONTEST_DATA_DIR = File.dirname(__FILE__) + "/fixtures/github-mini/"
+  CONTEST_DATA_DIR = File.dirname(__FILE__) + "/fixtures/github/"
   
   class DataSet
     attr_reader :users_repos, :users_repos_cluster, :repos_watchers_cluster, :repo_watch_count
@@ -27,13 +27,13 @@ module GithubContest
     
     def load_sample_set
       p :load_sample_set
-      @users_repos, @repos_watchers = {}, {}
+      @users_repos, @repos_watchers = Hash.new {|hsh,key| hsh[key]=[]}, Hash.new {|hsh,key| hsh[key]=[]}
       @repo_watch_count = Hash.new {0}
       IO.foreach(CONTEST_DATA_DIR + "data.txt") do |line|
         user, repo = line.strip.split(":").map { |id| id.to_i }
-        @repos_watchers[repo] ||= []
+        #@repos_watchers[repo] ||= []
         @repos_watchers[repo] << user
-        @users_repos[user] ||= []
+        #@users_repos[user] ||= []
         @users_repos[user] << repo
         @repo_watch_count[repo] += 1
       end
@@ -93,16 +93,17 @@ module GithubContest
       unless @results
         @results = each_test_user do |user_id, results|
           this_users_repos_watchers = {} 
-          p "(#{user_id}) collecting this user's repo-watchers pairs"
+          #p "(#{user_id}) collecting this user's repo-watchers pairs"
           @users_repos[user_id].each do |repo|
             this_users_repos_watchers[repo] = @repos_watchers[repo]
           end
-          p :finding_recommendations
+          #p :finding_recommendations
           r = Recommendation.new(user_id, @users_repos)
-          this_users_repos_watchers.each do |repo, watchers|
+          this_users_repos_watchers.each do |repo, watchers, swimming|
             k_nearest_repos = @repos_watchers_cluster.knn(k, watchers).map { |repo_doc| repo_doc.name}
             r.recommend_repos(k_nearest_repos)
           end
+          #puts "number of recommendations: #{r.recommended_repos.size}"
           results << r
           
         end
@@ -115,9 +116,10 @@ module GithubContest
       results = []
       threads = []
       load_test_set.partition(4).each do |some_of_the_users|
+        myblock = block.dup
         threads << Thread.new do
-          some_of_the_users.each do |user_id, results|
-            yield user_id, results
+          some_of_the_users.each do |user_id|
+            block.call(user_id, results)
           end
         end
       end
@@ -151,7 +153,7 @@ module GithubContest
   end
   
   class Recommendation
-    attr_reader :user_id, :similar_users
+    attr_reader :user_id, :similar_users, :recommended_repos
     
     def initialize(user_id, users_repos)
       @user_id, @users_repos = user_id, users_repos
@@ -172,11 +174,14 @@ module GithubContest
     
     def recommend(repo_id)
       @recommended_repos ||= Hash.new {0}
-      @recommended_repos[repo_id] += 1 unless already_watching?(repo)
+      @recommended_repos[repo_id] += 1 unless already_watching?(repo_id)
     end
     
-    def recommend_repos(repos=[])
-      repos.each { |repo| recommend(repo) }
+    def recommend_repos(repos)
+      #puts "recommending " + repos.inspect
+      repos.each do |repo_id| 
+        recommend(repo_id)
+      end
     end
     
     def recommend_repos_by_user_similarity
