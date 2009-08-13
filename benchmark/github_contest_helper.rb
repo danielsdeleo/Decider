@@ -19,8 +19,9 @@ module GithubContest
       @results = []
       IO.foreach(File.dirname(__FILE__) + "/fixtures/github-users-neighbors.txt") do |line|
         user_id, similar_users = line.strip.split(":")
-        r = Recommendation.new(user_id.to_i, @users_repos, @repo_watch_count)
+        r = Recommendation.new(user_id.to_i, @users_repos)
         r.similar_users_ids = similar_users.split(",").map { |similar_user| similar_user.to_i }
+        r.recommend_repos_by_user_similarity
         @results << r
       end
     end
@@ -93,7 +94,7 @@ module GithubContest
       unless @results
         @results = each_test_user do |user_id, results|
           this_users_repos_watchers = {} 
-          #p "(#{user_id}) collecting this user's repo-watchers pairs"
+          #p "collecting repo-watchers pairs for #{user_id}"
           @users_repos[user_id].each do |repo|
             this_users_repos_watchers[repo] = @repos_watchers[repo]
           end
@@ -103,7 +104,6 @@ module GithubContest
             k_nearest_repos = @repos_watchers_cluster.knn(k, watchers).map { |repo_doc| repo_doc.name}
             r.recommend_repos(k_nearest_repos)
           end
-          #puts "number of recommendations: #{r.recommended_repos.size}"
           results << r
           
         end
@@ -128,7 +128,7 @@ module GithubContest
     end
     
     def print_similar_users(fd=$stdout)
-      similar_users_map.each do |recommendation|
+      @results.each do |recommendation|
         fd.puts "#{recommendation.user_id}:" + recommendation.similar_users.join(",")
       end
     end
@@ -193,11 +193,11 @@ module GithubContest
     
     def best_recommendations
       recommended_repos = @recommended_repos.dup
-      recommend[user_id] = []
+      best_repos = []
       10.times do
-        recommend[user_id] << select_most_recommended_repo(recommended_repos)
+        best_repos << select_most_recommended_repo(recommended_repos)
       end
-      recommend
+      best_repos
     end
     
     def select_most_recommended_repo(repos_votes={})
