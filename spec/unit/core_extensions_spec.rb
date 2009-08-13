@@ -65,4 +65,8 @@ describe Array do
   it "should partition into N smaller sized arrays" do
     [1,2,3,4,5,6,7,8,9,10,11,12].partition(3).should == [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
   end
+  
+  it "should remove a single matching element" do
+    [1,1].remove(1).should == [1]
+  end
 end

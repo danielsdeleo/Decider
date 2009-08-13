@@ -97,4 +97,15 @@ class Array
     resulting_arrays
   end
   
+  def remove(item)
+    remove_item = true
+    delete_if do |element|
+      if remove_item && item == element
+        remove_item = false
+        true
+      end
+    end
+    self
+  end
+  
 end
