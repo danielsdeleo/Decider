@@ -30,12 +30,15 @@ module GithubContest
     def load_sample_set
       p :load_sample_set
       @users_repos, @repos_watchers = Hash.new {|hsh,key| hsh[key]=[]}, Hash.new {|hsh,key| hsh[key]=[]}
+      @repo_popularity = Hash.new(0)
       IO.foreach(CONTEST_DATA_DIR + "data.txt") do |line|
         user, repo = line.strip.split(":").map { |id| id.to_i }
+        @repo_popularity[repo] += 1
         @repos_watchers[repo] << user
         @users_repos[user] << repo
       end
-
+      Recommendation.repo_popularity = @repo_popularity
+      
       stats.total_users = users_repos.size
       @users_repos
     end
@@ -44,7 +47,7 @@ module GithubContest
       p :load_users_repos_into_cluster
       @users_repos.each do |user, repos|
         # everyone who only watches rails is a fail.
-        @users_repos_cluster.push(user, repos) unless repos.size > 10
+        @users_repos_cluster.push(user, repos) unless repos.size > 5
       end
     end
     
@@ -156,10 +159,24 @@ module GithubContest
   end
   
   class Recommendation
-    attr_reader :user_id, :similar_users, :recommended_repos
+    attr_accessor :recommended_repos
+    attr_reader :user_id, :similar_users
+    
+    class << self
+      def repo_popularity=(repo_popularity)
+        default_recommendation = Recommendation.new(-1, {})
+        default_recommendation.recommended_repos = repo_popularity
+        @most_popular_repos = default_recommendation.best_recommendations
+      end
+      
+      def most_popular_repos
+        @most_popular_repos.dup
+      end
+    end
     
     def initialize(user_id, users_repos)
       @user_id, @users_repos = user_id, users_repos
+      @most_popular_repos = self.class.most_popular_repos
     end
     
     def similar_users=(similar_users_documents)
@@ -198,7 +215,7 @@ module GithubContest
       recommended_repos = @recommended_repos.dup
       best_repos = []
       10.times do
-        best_repos << select_most_recommended_repo(recommended_repos)
+        best_repos << (select_most_recommended_repo(recommended_repos)|| @most_popular_repos.shift)
       end
       best_repos
     end
