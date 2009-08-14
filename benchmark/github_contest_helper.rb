@@ -176,7 +176,6 @@ module GithubContest
     
     def initialize(user_id, users_repos)
       @user_id, @users_repos = user_id, users_repos
-      @most_popular_repos = self.class.most_popular_repos
     end
     
     def similar_users=(similar_users_documents)
@@ -211,11 +210,15 @@ module GithubContest
       best_recommendations
     end
     
+    def most_popular_repos
+      @most_popular_repos ||= self.class.most_popular_repos
+    end
+    
     def best_recommendations
       recommended_repos = @recommended_repos.dup
       best_repos = []
       10.times do
-        best_repos << (select_most_recommended_repo(recommended_repos)|| @most_popular_repos.shift)
+        best_repos << (select_most_recommended_repo(recommended_repos)|| most_popular_repos.shift)
       end
       best_repos
     end
