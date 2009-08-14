@@ -42,7 +42,8 @@ module GithubContest
     def load_users_repos_into_cluster
       p :load_users_repos_into_cluster
       @users_repos.each do |user, repos|
-        @users_repos_cluster.push(user, repos)
+        # everyone who only follows rails is a fail.
+        @users_repos_cluster.push(user, repos) unless repos.size < 3
       end
     end
     
@@ -54,7 +55,7 @@ module GithubContest
     def load_repos_watchers_into_cluster
       p :load_repos_watchers_into_cluster
       @repos_watchers.each do |repo, watchers|
-        @repos_watchers_cluster.push(repo, watchers)
+        @repos_watchers_cluster.push(repo, watchers) unless watchers.size < 3
       end
     end
     
