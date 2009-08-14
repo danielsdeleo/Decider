@@ -110,7 +110,6 @@ module GithubContest
             r.recommend_repos(@repos_similar_repos[repo])
           end
           results << r
-          
         end
       end
       @results
