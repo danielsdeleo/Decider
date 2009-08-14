@@ -60,17 +60,17 @@ module GithubContest
       @repos_watchers.each do |repo, watchers|
         @repos_watchers_cluster.push(repo, watchers)
       end
+    end
+    
+    def generate_repos_watchers_tree
+      p :generate_repos_watchers_tree
+      @repos_watchers_cluster.tree
       begin
         fd = File.open(File.dirname(__FILE__) + "/fixtures/repos-watchers-cluster.rbm", "w+")
         fd.puts Marshal.dump(@repos_watchers_cluster.tree)
       ensure
         fd.close
       end
-    end
-    
-    def generate_repos_watchers_tree
-      p :generate_repos_watchers_tree
-      @repos_watchers_cluster.tree
     end
     
     def load_test_set
