@@ -4,7 +4,7 @@ module Decider
   module Vectors
     class Tanimoto < SparseBinary
       
-      def distance(other_vector)
+      def distance(other)
         items_in_both = (@sparse_vector & other.sparse_vector).length
         items_in_self_only = (@sparse_vector - other.sparse_vector).length
         items_in_other_only = (other.sparse_vector - @sparse_vector).length
