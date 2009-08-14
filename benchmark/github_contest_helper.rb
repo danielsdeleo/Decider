@@ -74,10 +74,13 @@ module GithubContest
     end
     
     def load_test_set
-      p :load_test_set
-      @users_to_recommend_to = []
-      IO.foreach(CONTEST_DATA_DIR + "test.txt") do |line|
-        @users_to_recommend_to << line.strip.to_i
+      @users_to_recommend_to ||= begin
+        p :load_test_set
+        user_ids = []
+        IO.foreach(CONTEST_DATA_DIR + "test.txt") do |line|
+          user_ids << line.strip.to_i
+        end
+        user_ids
       end
       @users_to_recommend_to
     end
