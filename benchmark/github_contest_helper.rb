@@ -43,7 +43,7 @@ module GithubContest
       p :load_users_repos_into_cluster
       @users_repos.each do |user, repos|
         # everyone who only watches rails is a fail.
-        @users_repos_cluster.push(user, repos) unless repos.size > 2
+        @users_repos_cluster.push(user, repos) unless repos.size > 3
       end
     end
     
