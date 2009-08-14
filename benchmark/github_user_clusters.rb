@@ -13,7 +13,7 @@ Benchmark.bm(20) do |results|
   end
   
   results.report("find KNN:") do
-    github_data.find_similar_users(100)
+    github_data.find_similar_users(30)
   end
 
   begin
