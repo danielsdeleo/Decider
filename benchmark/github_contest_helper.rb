@@ -166,11 +166,14 @@ module GithubContest
       def repo_popularity=(repo_popularity)
         default_recommendation = Recommendation.new(-1, {})
         default_recommendation.recommended_repos = repo_popularity
-        @most_popular_repos = default_recommendation.best_recommendations
+        puts "loaded most popular repos:"
+        p @most_popular_repos = default_recommendation.best_recommendations
       end
       
       def most_popular_repos
-        @most_popular_repos.dup
+        x = @most_popular_repos.clone
+        puts "most popular was empty in the fuckin class method" if x.empty?
+        x
       end
     end
     
@@ -210,15 +213,14 @@ module GithubContest
       best_recommendations
     end
     
-    def most_popular_repos
-      @most_popular_repos ||= self.class.most_popular_repos
-    end
-    
     def best_recommendations
+      @most_popular_repos = @user_id == -1 ? [] : self.class.most_popular_repos 
       recommended_repos = @recommended_repos.dup
       best_repos = []
       10.times do
-        best_repos << (select_most_recommended_repo(recommended_repos)|| most_popular_repos.shift)
+        best_guess = select_most_recommended_repo(recommended_repos)
+        p :wtf unless best_guess
+        best_repos << best_guess
       end
       best_repos
     end
@@ -230,6 +232,7 @@ module GithubContest
         best_repo, most_votes = repo, votes if votes > most_votes
       end
       repos_votes.delete(best_repo)
+      best_repo = @most_popular_repos.shift unless best_repo
       best_repo
     end
     

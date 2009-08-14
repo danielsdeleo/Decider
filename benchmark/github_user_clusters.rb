@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/bench_helper'
 require File.dirname(__FILE__) + '/github_contest_helper'
 
-github_data = GithubContest::DataSet.new #(:tanimoto)
+github_data = GithubContest::DataSet.new(:tanimoto)
 
 Benchmark.bm(20) do |results|
   results.report("load data:") do
