@@ -9,6 +9,7 @@ module GithubContest
       p :initialize
       @users_repos_cluster = Decider::Clustering::NearestNeighbors.new(vector_type) { |doc| doc.verbatim }
       @repos_watchers_cluster = Decider::Clustering::NearestNeighbors.new(vector_type) { |doc| doc.verbatim }
+      @repos_similar_repos = {}
       @results = nil
       load_sample_set
       load_test_set
@@ -43,7 +44,7 @@ module GithubContest
       p :load_users_repos_into_cluster
       @users_repos.each do |user, repos|
         # everyone who only watches rails is a fail.
-        @users_repos_cluster.push(user, repos) unless repos.size > 3
+        @users_repos_cluster.push(user, repos) unless repos.size > 5
       end
     end
     
@@ -55,7 +56,7 @@ module GithubContest
     def load_repos_watchers_into_cluster
       p :load_repos_watchers_into_cluster
       @repos_watchers.each do |repo, watchers|
-        @repos_watchers_cluster.push(repo, watchers) unless watchers.size > 3
+        @repos_watchers_cluster.push(repo, watchers) unless watchers.size > 5
       end
     end
     
@@ -100,15 +101,13 @@ module GithubContest
       unless @results
         @results = each_test_user do |user_id, results|
           this_users_repos_watchers = {} 
-          #p "collecting repo-watchers pairs for #{user_id}"
           @users_repos[user_id].each do |repo|
             this_users_repos_watchers[repo] = @repos_watchers[repo]
           end
-          #p :finding_recommendations
           r = Recommendation.new(user_id, @users_repos)
-          this_users_repos_watchers.each do |repo, watchers, swimming|
-            k_nearest_repos = @repos_watchers_cluster.knn(k, watchers).map { |repo_doc| repo_doc.name}
-            r.recommend_repos(k_nearest_repos)
+          this_users_repos_watchers.each do |repo, watchers|
+            @repos_similar_repos[repo] ||= @repos_watchers_cluster.knn(k, watchers).map { |repo_doc| repo_doc.name}
+            r.recommend_repos(@repos_similar_repos[repo])
           end
           results << r
           
