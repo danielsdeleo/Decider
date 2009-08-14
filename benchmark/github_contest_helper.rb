@@ -9,6 +9,7 @@ module GithubContest
       p :initialize
       @users_repos_cluster = Decider::Clustering::NearestNeighbors.new(vector_type) { |doc| doc.verbatim }
       @repos_watchers_cluster = Decider::Clustering::NearestNeighbors.new(vector_type) { |doc| doc.verbatim }
+      @repos_similar_repos = {}
       @results = nil
       load_sample_set
       load_test_set
@@ -29,16 +30,15 @@ module GithubContest
     def load_sample_set
       p :load_sample_set
       @users_repos, @repos_watchers = Hash.new {|hsh,key| hsh[key]=[]}, Hash.new {|hsh,key| hsh[key]=[]}
-      @repo_watch_count = Hash.new {0}
+      @repo_popularity = Hash.new(0)
       IO.foreach(CONTEST_DATA_DIR + "data.txt") do |line|
         user, repo = line.strip.split(":").map { |id| id.to_i }
-        #@repos_watchers[repo] ||= []
+        @repo_popularity[repo] += 1
         @repos_watchers[repo] << user
-        #@users_repos[user] ||= []
         @users_repos[user] << repo
-        @repo_watch_count[repo] += 1
       end
-
+      Recommendation.repo_popularity = @repo_popularity
+      
       stats.total_users = users_repos.size
       @users_repos
     end
@@ -46,7 +46,8 @@ module GithubContest
     def load_users_repos_into_cluster
       p :load_users_repos_into_cluster
       @users_repos.each do |user, repos|
-        @users_repos_cluster.push(user, repos)
+        # everyone who only watches rails is a fail.
+        @users_repos_cluster.push(user, repos) unless repos.size > 5
       end
     end
     
@@ -58,13 +59,19 @@ module GithubContest
     def load_repos_watchers_into_cluster
       p :load_repos_watchers_into_cluster
       @repos_watchers.each do |repo, watchers|
-        @repos_watchers_cluster.push(repo, watchers)
+        @repos_watchers_cluster.push(repo, watchers) unless watchers.size > 5
       end
     end
     
     def generate_repos_watchers_tree
       p :generate_repos_watchers_tree
       @repos_watchers_cluster.tree
+      begin
+        fd = File.open(File.dirname(__FILE__) + "/fixtures/repos-watchers-cluster.rbm", "w+")
+        fd.puts Marshal.dump(@repos_watchers_cluster.tree)
+      ensure
+        fd.close
+      end
     end
     
     def load_test_set
@@ -97,18 +104,15 @@ module GithubContest
       unless @results
         @results = each_test_user do |user_id, results|
           this_users_repos_watchers = {} 
-          #p "collecting repo-watchers pairs for #{user_id}"
           @users_repos[user_id].each do |repo|
             this_users_repos_watchers[repo] = @repos_watchers[repo]
           end
-          #p :finding_recommendations
           r = Recommendation.new(user_id, @users_repos)
-          this_users_repos_watchers.each do |repo, watchers, swimming|
-            k_nearest_repos = @repos_watchers_cluster.knn(k, watchers).map { |repo_doc| repo_doc.name}
-            r.recommend_repos(k_nearest_repos)
+          this_users_repos_watchers.each do |repo, watchers|
+            @repos_similar_repos[repo] ||= @repos_watchers_cluster.knn(k, watchers).map { |repo_doc| repo_doc.name}
+            r.recommend_repos(@repos_similar_repos[repo])
           end
           results << r
-          
         end
       end
       @results
@@ -118,7 +122,7 @@ module GithubContest
       p :each_test_user
       results = []
       threads = []
-      load_test_set.partition(4).each do |some_of_the_users|
+      load_test_set.partition(16).each do |some_of_the_users|
         threads << Thread.new do
           some_of_the_users.each do |user_id|
             block.call(user_id, results)
@@ -155,7 +159,20 @@ module GithubContest
   end
   
   class Recommendation
-    attr_reader :user_id, :similar_users, :recommended_repos
+    attr_accessor :recommended_repos
+    attr_reader :user_id, :similar_users
+    
+    class << self
+      def repo_popularity=(repo_popularity)
+        default_recommendation = Recommendation.new(-1, {})
+        default_recommendation.recommended_repos = repo_popularity
+        @most_popular_repos = default_recommendation.best_recommendations
+      end
+      
+      def most_popular_repos
+        @most_popular_repos.dup
+      end
+    end
     
     def initialize(user_id, users_repos)
       @user_id, @users_repos = user_id, users_repos
@@ -170,7 +187,7 @@ module GithubContest
     end
     
     def already_watching?(repo_id)
-      @already_watching_repos ||= @users_repos[@user_id] || []
+      @already_watching_repos ||= (@users_repos[@user_id] || [])
       @already_watching_repos.include?(repo_id)
     end
     
@@ -193,11 +210,15 @@ module GithubContest
       best_recommendations
     end
     
+    def most_popular_repos
+      @most_popular_repos ||= self.class.most_popular_repos
+    end
+    
     def best_recommendations
       recommended_repos = @recommended_repos.dup
       best_repos = []
       10.times do
-        best_repos << select_most_recommended_repo(recommended_repos)
+        best_repos << (select_most_recommended_repo(recommended_repos)|| most_popular_repos.shift)
       end
       best_repos
     end
