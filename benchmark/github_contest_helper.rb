@@ -60,6 +60,12 @@ module GithubContest
       @repos_watchers.each do |repo, watchers|
         @repos_watchers_cluster.push(repo, watchers)
       end
+      begin
+        fd = File.open(File.dirname(__FILE__) + "/fixtures/repos-watchers-cluster.rbm", "w+")
+        fd.puts Marshal.dump(@repos_watchers_cluster.tree)
+      ensure
+        fd.close
+      end
     end
     
     def generate_repos_watchers_tree
@@ -115,8 +121,7 @@ module GithubContest
       p :each_test_user
       results = []
       threads = []
-      load_test_set.partition(4).each do |some_of_the_users|
-        myblock = block.dup
+      load_test_set.partition(16).each do |some_of_the_users|
         threads << Thread.new do
           some_of_the_users.each do |user_id|
             block.call(user_id, results)
