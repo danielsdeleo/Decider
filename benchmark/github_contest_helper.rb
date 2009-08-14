@@ -29,14 +29,10 @@ module GithubContest
     def load_sample_set
       p :load_sample_set
       @users_repos, @repos_watchers = Hash.new {|hsh,key| hsh[key]=[]}, Hash.new {|hsh,key| hsh[key]=[]}
-      @repo_watch_count = Hash.new {0}
       IO.foreach(CONTEST_DATA_DIR + "data.txt") do |line|
         user, repo = line.strip.split(":").map { |id| id.to_i }
-        #@repos_watchers[repo] ||= []
         @repos_watchers[repo] << user
-        #@users_repos[user] ||= []
         @users_repos[user] << repo
-        @repo_watch_count[repo] += 1
       end
 
       stats.total_users = users_repos.size
@@ -176,7 +172,7 @@ module GithubContest
     end
     
     def already_watching?(repo_id)
-      @already_watching_repos ||= @users_repos[@user_id] || []
+      @already_watching_repos ||= (@users_repos[@user_id] || [])
       @already_watching_repos.include?(repo_id)
     end
     
