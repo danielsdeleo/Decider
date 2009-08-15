@@ -58,12 +58,20 @@ module Decider
         end
         #puts "found nearest nodes at distances: #{results.scores.join(',')}"
         #puts "nearest nodes are: #{results.to_a.map {|n| n.doc.name}.join(",")}"
-        results.to_a.map { |node| node.doc }
+        if opts[:include_scores]
+          result_hsh = {}
+          results.each do |node, score|
+            result_hsh[node.doc] = score
+          end
+          result_hsh
+        else
+          results.to_a.map { |node| node.doc }
+        end
       end
       
       class Results
         extend Forwardable
-        def_delegators :@results, :values, :size
+        def_delegators :@results, :values, :size, :each
         
         def initialize(opts={})
           @max_results, @distance_limit = opts[:results], opts[:distance]
