@@ -92,7 +92,7 @@ module GithubContest
       unless @results
         @results = each_test_user do |user_id, results|
           r = Recommendation.new(user_id, @users_repos)
-          r.similar_users = @users_repos_cluster.knn(k, @users_repos[user_id])
+          r.similar_users = @users_repos_cluster.knn(k, @users_repos[user_id], :include_scores => true)
           results << r
         end
       end

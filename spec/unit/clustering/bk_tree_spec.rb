@@ -134,6 +134,15 @@ describe Clustering::BkTree do
       results.each { |document| document.to_s.should match(/ones_/) }
     end
     
+    it "should give the K nearest neighbors with distance values" do
+      results = @bk_tree.k_nearest_neighbors(5, vector_from_array([1,1,1,1,1]), :include_scores => true)
+      results.should have(5).nodes
+      results.each do |document, score| 
+        document.to_s.should match(/ones_/)
+        score.should == 1
+      end
+    end
+    
     it "should alias k_nearest_neighbors as knn" do
       @bk_tree.should respond_to(:knn)
     end

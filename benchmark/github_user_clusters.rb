@@ -1,26 +1,25 @@
 require File.dirname(__FILE__) + '/bench_helper'
-require File.dirname(__FILE__) + '/github_contest_helper'
+require File.dirname(__FILE__) + '/github_contest'
 
-github_data = GithubContest::DataSet.new(:tanimoto)
+GithubContest::Data.load!
+cluster = GithubContest::UsersCluster.new(:require_watches=>3)
+
 
 Benchmark.bm(20) do |results|
   results.report("load data:") do
-    github_data.load_users_repos_into_cluster
+    cluster.load!
   end
   
   results.report("build tree:") do
-    github_data.generate_users_repos_tree
+    cluster.build
   end
   
   results.report("find KNN:") do
-    github_data.find_similar_users(30)
+    cluster.find_neighbors_of_test_users(30)
   end
-
-  begin
-    fd = File.open(File.dirname(__FILE__) + "/fixtures/github-users-neighbors.txt", "w+")
-    github_data.print_similar_users(fd)
-  ensure
-    fd.close
+  
+  cluster.recommendations.each do |recommended_repos|
+    puts recommended_repos.emit_recommendations
   end
 
   
