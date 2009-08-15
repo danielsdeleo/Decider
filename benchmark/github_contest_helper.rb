@@ -66,12 +66,12 @@ module GithubContest
     def generate_repos_watchers_tree
       p :generate_repos_watchers_tree
       @repos_watchers_cluster.tree
-      begin
-        fd = File.open(File.dirname(__FILE__) + "/fixtures/repos-watchers-cluster.rbm", "w+")
-        fd.puts Marshal.dump(@repos_watchers_cluster.tree)
-      ensure
-        fd.close
-      end
+      # begin
+      #   fd = File.open(File.dirname(__FILE__) + "/fixtures/repos-watchers-cluster.rbm", "w+")
+      #   fd.puts Marshal.dump(@repos_watchers_cluster.tree)
+      # ensure
+      #   fd.close
+      # end
     end
     
     def load_test_set
@@ -166,14 +166,11 @@ module GithubContest
       def repo_popularity=(repo_popularity)
         default_recommendation = Recommendation.new(-1, {})
         default_recommendation.recommended_repos = repo_popularity
-        puts "loaded most popular repos:"
-        p @most_popular_repos = default_recommendation.best_recommendations
+        @most_popular_repos = default_recommendation.best_recommendations
       end
       
       def most_popular_repos
-        x = @most_popular_repos.clone
-        puts "most popular was empty in the fuckin class method" if x.empty?
-        x
+        @most_popular_repos.clone
       end
     end
     
