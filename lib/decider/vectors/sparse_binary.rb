@@ -10,6 +10,10 @@ module Decider
         @sparse_vector = []
       end
       
+      def ==(other_vector)
+        @sparse_vector == other_vector.sparse_vector
+      end
+      
       def duplicated
         @sparse_vector = @sparse_vector.dup
       end
@@ -33,10 +37,12 @@ module Decider
       # For binary vectors, the Tanimoto coefficient is used.
       # http://en.wikipedia.org/wiki/Jaccard_index
       def closeness(other)
+        return 1.0 if self == other
         items_in_both = (@sparse_vector & other.sparse_vector).length
-        items_in_self_only = (@sparse_vector - other.sparse_vector).length
-        items_in_other_only = (other.sparse_vector - @sparse_vector).length
-        items_in_both.to_f / (items_in_both + items_in_self_only + items_in_other_only)
+        #items_in_self_only = (@sparse_vector - other.sparse_vector).length
+        #items_in_other_only = (other.sparse_vector - @sparse_vector).length
+        #items_in_both.to_f / (items_in_both + items_in_self_only + items_in_other_only)
+        items_in_both.to_f / (@sparse_vector.size + other.sparse_vector.size - items_in_both)
       end
       
       def distance(other)

@@ -30,6 +30,11 @@ shared_examples_for "a binary vector" do
       @lolz_catz.closeness(@eatin_ur_foodz).should == 0.6
     end
     
+    it "should return 1.0 as the closeness for identical vectors" do
+      lolz_clone = @lolz_catz.clone # make sure we're not comparing object identity
+      @lolz_catz.closeness(lolz_clone).should == 1.0
+    end
+    
     it "should give a distance measurement using the hamming distance" do
       @lolz_catz.distance(@eatin_ur_foodz).should == 2
     end
