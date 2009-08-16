@@ -10,44 +10,44 @@ class GithubContest
       
       def load!
         unless data_loaded?
-          instance.load_sample_data
-          instance.load_test_data
-          instance.loaded
+          self.instance.load_sample_data
+          self.instance.load_test_data
+          self.instance.loaded
         end
       end
       
       def data_loaded?
-        instance.data_loaded?
+        self.instance.data_loaded?
       end
       
       def repos_watched_by(user)
-        instance.users_repos[user]
+        self.instance.users_repos[user]
       end
       
       def users_watching(repo)
-        instance.repos_watchers[repo]
+        self.instance.repos_watchers[repo]
       end
       
       def each_user(&block)
-        instance.users_repos.each(&block)
+        self.instance.users_repos.each(&block)
       end
       
       def each_repo(&block)
-        instance.repos_watchers.each(&block)
+        self.instance.repos_watchers.each(&block)
       end
       
       def test_users
-        instance.test_users
+        self.instance.test_users
       end
       
       def all_repos
-        instance.repos_watchers.keys
+        self.instance.repos_watchers.keys
       end
       
       def ten_most_popular_remaining_for(user)
         unless @popular_repos
           @popular_repos = RecommendedRepos.new(-1)
-          @popular_repos.may_include(instance.repo_popularity)
+          @popular_repos.may_include(self.instance.repo_popularity)
         end
         @popular_repos.ten_best_repos_for(user)
       end
@@ -57,13 +57,13 @@ class GithubContest
     attr_reader :users_repos, :repos_watchers, :repo_popularity, :test_users
     
     def initialize
-      @users_repos, @repos_watchers = Hash.new {|hsh,key| hsh[key]=[]}, Hash.new {|hsh,key| hsh[key]=[]}
-      @repo_popularity = Hash.new(0)
-      @test_users = []
-      @loaded = false
+      @loaded ||= false
     end
     
     def load_sample_data
+      @users_repos ||= Hash.new {|hsh,key| hsh[key]=[]}
+      @repos_watchers ||=  Hash.new {|hsh,key| hsh[key]=[]}
+      @repo_popularity ||= Hash.new(0)
       unless data_loaded?
         IO.foreach(CONTEST_DATA_DIR + "data.txt") do |line|
           user, repo = line.strip.split(":").map { |id| id.to_i }
@@ -75,6 +75,7 @@ class GithubContest
     end
     
     def load_test_data
+      @test_users ||= []
       unless data_loaded?
         IO.foreach(CONTEST_DATA_DIR + "test.txt") do |line|
           @test_users << line.strip.to_i
@@ -97,7 +98,7 @@ class GithubContest
     class << self
       def load_string(string)
         raise ArgumentError, "invalid SimilarUsers string: ``#{string}''" if invalid_string?(string)
-        test_user, users_and_metrics = string.chomp.split(":")
+        test_user, users_and_metrics = string.strip.split(":")
         similar_user = new(test_user.to_i)
         users_and_metrics.split(";").each do |user_and_metric|
           user, metric = user_and_metric.split("=>")
@@ -131,8 +132,8 @@ class GithubContest
     
     def to_recommended_repos
       recommended_repos = RecommendedRepos.new(@test_user)
-      @users_with_metrics.each do |user, metric|
-        Data.repos_watched_by(user).each do |repo|
+      @users_with_metrics.each do |similar_user, metric|
+        Data.repos_watched_by(similar_user).each do |repo|
           recommended_repos.consider_repo(:id=>repo,:metric=>metric)
         end
       end
@@ -148,6 +149,24 @@ class GithubContest
   end
   
   class RecommendedRepos
+    
+    class << self
+      
+      def load_string(string)
+        test_subject_id, repos_with_metrics = string.strip.split(":")
+        recommended_repos = new(test_subject_id.to_i)
+        repos_with_metrics.split(";").each do |repo_with_metrics|
+          repo, metrics = repo_with_metrics.split("=>")
+          repo = repo.to_i
+          metrics.split(",").each do |metric|
+            metric = (metric =~ /[\d]+\.[\d]+/ ? metric.to_f : metric.to_i)
+            recommended_repos.consider_repo(:id => repo, :metric => metric)
+          end
+        end
+        recommended_repos
+      end
+      
+    end
     
     def initialize(test_user_or_repo_id)
       @test_subject_id = test_user_or_repo_id
@@ -225,6 +244,14 @@ class GithubContest
       best_repo
     end
     
+    def to_s
+      string = @test_subject_id.to_s + ":"
+      @repos_with_metrics.each do |repo, metrics|
+        string << repo.to_s + "=>" + metrics.join(",") + ";"
+      end
+      string
+    end
+    
   end
   
   class GenericCluster
@@ -264,8 +291,11 @@ class GithubContest
     def find_neighbors_of_test_users(k=10)
       mutex = Mutex.new
       threads = []
-      Data.test_users.partition(16).each do |users_subset|
+      Data.test_users.partition(8).each do |users_subset|
         threads << Thread.new do
+          # Try to fix strange error where Data.instance would be re-initialized
+          # possibly because of threading
+          data_in_context_i_hope = Data.instance
           users_subset.each do |test_user|
             similar_users = users_similar_to(test_user, :k=>k)
             mutex.synchronize { @all_similar_users << similar_users }
@@ -279,7 +309,7 @@ class GithubContest
       k = opts[:k] || 10
       similar_users = SimilarUsers.new(user)
       @cluster.knn(k, Data.repos_watched_by(user), :include_scores=>true).each do |user_doc, metric|
-        similar_users.user(:id => user_doc.name, :metric => metric)
+        similar_users.user(:id => user_doc.name.to_i, :metric => metric)
       end
       similar_users
     end
@@ -309,7 +339,7 @@ class GithubContest
       k = opts[:k] || 10
       similar_repos = RecommendedRepos.new(repo)
       @cluster.knn(k, Data.users_watching(repo), :include_scores=>true).each do |repo_doc, metric|
-        similar_repos.consider_repo(:id => repo_doc.name, :metric => metric)
+        similar_repos.consider_repo(:id => repo_doc.name.to_i, :metric => metric)
       end
       similar_repos
     end
@@ -317,7 +347,7 @@ class GithubContest
     def find_neighbors_of_all_repos(k=10)
       mutex = Mutex.new
       threads = []
-      Data.all_repos.partition(16).each do |repos_subset|
+      Data.all_repos.partition(8).each do |repos_subset|
         threads << Thread.new do
           repos_subset.each do |repo_id|
             similar_repos = repos_similar_to(repo, :k=>k)

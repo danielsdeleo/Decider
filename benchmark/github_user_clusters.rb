@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/bench_helper'
 require File.dirname(__FILE__) + '/github_contest'
 
 GithubContest::Data.load!
-cluster = GithubContest::UsersCluster.new(:require_watches=>3)
+cluster = GithubContest::UsersCluster.new(:require_watches=>2, :vector_type => :tanimoto)
 
 
 Benchmark.bm(20) do |results|
@@ -15,7 +15,7 @@ Benchmark.bm(20) do |results|
   end
   
   results.report("find KNN:") do
-    cluster.find_neighbors_of_test_users(30)
+    cluster.find_neighbors_of_test_users(100)
   end
   
   cluster.recommendations.each do |recommended_repos|
