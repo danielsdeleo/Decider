@@ -31,7 +31,7 @@ module Decider
     attr_writer :domain_tokens
 
     def initialize(name, raw_text)
-      @name, @raw = name.to_s, raw_text
+      @name, @raw = name, raw_text
       @domain_tokens, @additional_tokens, @finalized = [], [], false
     end
 

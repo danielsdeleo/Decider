@@ -9,9 +9,8 @@ describe Document do
       Document.new(:simple_doc, "the original text").raw.should == "the original text"
     end
     
-    it "should have a name" do
-      Document.new(:simple_doc, "the original text").name.should == "simple_doc"
-      
+    it "should have a name and not convert it to a string" do
+      Document.new(:simple_doc, "the original text").name.should == :simple_doc
     end
 
   end
