@@ -291,7 +291,7 @@ class GithubContest
     def find_neighbors_of_test_users(k=10)
       mutex = Mutex.new
       threads = []
-      Data.test_users.partition(8).each do |users_subset|
+      Data.test_users.partition(16).each do |users_subset|
         threads << Thread.new do
           # Try to fix strange error where Data.instance would be re-initialized
           # possibly because of threading
@@ -347,7 +347,7 @@ class GithubContest
     def find_neighbors_of_all_repos(k=10)
       mutex = Mutex.new
       threads = []
-      Data.all_repos.partition(8).each do |repos_subset|
+      Data.all_repos.partition(16).each do |repos_subset|
         threads << Thread.new do
           repos_subset.each do |repo_id|
             similar_repos = repos_similar_to(repo, :k=>k)
