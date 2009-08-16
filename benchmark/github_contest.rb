@@ -350,7 +350,7 @@ class GithubContest
       Data.all_repos.partition(16).each do |repos_subset|
         threads << Thread.new do
           repos_subset.each do |repo_id|
-            similar_repos = repos_similar_to(repo, :k=>k)
+            similar_repos = repos_similar_to(repo_id, :k=>k)
             mutex.synchronize {@all_similar_repos << similar_repos}
           end
         end
