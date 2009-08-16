@@ -55,6 +55,7 @@ module Decider
           distance_to_node = node.vector.distance(target_vector)
           results[node] = distance_to_node
           nodes_to_test += node.children_in_range(distance_to_node, results.distance_limit)
+          break if results.distance_limit && results.distance_limit.ceil == 0
         end
         #puts "found nearest nodes at distances: #{results.scores.join(',')}"
         #puts "nearest nodes are: #{results.to_a.map {|n| n.doc.name}.join(",")}"
