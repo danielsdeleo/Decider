@@ -46,6 +46,7 @@ module Decider
       end
       
       def distance(other)
+        return 0 if self == other
         (@sparse_vector - other.sparse_vector).length + (other.sparse_vector - @sparse_vector).length
       end
       
