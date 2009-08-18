@@ -47,9 +47,11 @@ class GithubContest
       def ten_most_popular_remaining_for(user)
         unless @popular_repos
           @popular_repos = RecommendedRepos.new(-1)
-          @popular_repos.may_include(self.instance.repo_popularity)
+          self.instance.repo_popularity.each do |repo, watchers|
+            @popular_repos.consider_repo(:id=>repo, :metric=>(1.0 / watchers.to_f))
+          end
         end
-        @popular_repos.ten_best_repos_for(user)
+        @popular_repos.ten_best_repos_for(user).reverse
       end
       
     end
