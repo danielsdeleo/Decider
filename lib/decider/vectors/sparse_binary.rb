@@ -3,7 +3,7 @@
 module Decider
   module Vectors
     class SparseBinary < AbstractBase
-      attr_accessor :sparse_vector
+      attr_accessor :sparse_vector, :vector_size
       
       def initialize(token_index_hsh=nil)
         super
@@ -32,17 +32,20 @@ module Decider
             @sparse_vector << i
           end
         end
+        @vector_size ||= @sparse_vector.size
       end
       
       # For binary vectors, the Tanimoto coefficient is used.
       # http://en.wikipedia.org/wiki/Jaccard_index
       def closeness(other)
+        # unoptimized implementation:
+        # items_in_both = (@sparse_vector & other.sparse_vector).size
+        # items_in_self_only = (@sparse_vector - other.sparse_vector).length
+        # items_in_other_only = (other.sparse_vector - @sparse_vector).length
+        # items_in_both.to_f / (items_in_both + items_in_self_only + items_in_other_only)
         return 1.0 if self == other
-        items_in_both = (@sparse_vector & other.sparse_vector).length
-        #items_in_self_only = (@sparse_vector - other.sparse_vector).length
-        #items_in_other_only = (other.sparse_vector - @sparse_vector).length
-        #items_in_both.to_f / (items_in_both + items_in_self_only + items_in_other_only)
-        items_in_both.to_f / (@sparse_vector.size + other.sparse_vector.size - items_in_both)
+        items_in_both = (@sparse_vector & other.sparse_vector).size
+        items_in_both.to_f / (vector_size + other.vector_size - items_in_both)
       end
       
       def distance(other)

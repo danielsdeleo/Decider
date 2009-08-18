@@ -164,7 +164,7 @@ describe GithubContest::RecommendedRepos do
   end
   
   it "should select the ten best repos" do
-    knn_results = {1=>11,2=>22,3=>33,4=>44,5=>55,6=>66,7=>77,8=>88,9=>99,10=>110,11=>121,12=>132}
+    knn_results = {1=>11,2=>22,3=>33,4=>44,5=>55,6=>66,7=>77,8=>88,9=>99,10=>110,11=>121,12=>132,13=>1313,14=>1414}
     GithubContest::Data.stub(:repos_watched_by).with(40998).and_return([2])
     @recommended.may_include(knn_results)
     @recommended.ten_best_repos_for(40998).should include(1,3,4,5,6,7,8,9,10,11)

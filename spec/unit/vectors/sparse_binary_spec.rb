@@ -36,5 +36,11 @@ describe Vectors::SparseBinary do
       (@vector_a == @vector_b).should be_false
     end
     
+    it "should give its vector's size (and cache it)" do
+      @vector_a.vector_size.should == 15
+      @vector_b.vector_size.should == 2
+      @vector_a.send(:instance_variable_get, :@vector_size).should == 15
+    end
+    
   end
 end
