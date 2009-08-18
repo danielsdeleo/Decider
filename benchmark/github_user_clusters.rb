@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/bench_helper'
 require File.dirname(__FILE__) + '/github_contest'
 
 GithubContest::Data.load!
-cluster = GithubContest::UsersCluster.new(:vector_type => :tanimoto)
+cluster = GithubContest::UsersCluster.new(:require_watches=>2, :vector_type => :tanimoto)
 
 
 Benchmark.bm(20) do |results|
