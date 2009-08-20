@@ -14,7 +14,7 @@ Benchmark.bm(20) do |results|
   end
   
   results.report("find KNN:") do
-    cluster.find_neighbors_of_all_repos(10)
+    cluster.find_neighbors_of_all_repos(40)
   end
   
   begin
