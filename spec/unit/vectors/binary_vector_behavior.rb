@@ -27,12 +27,12 @@ shared_examples_for "a binary vector" do
     # m_11 = 2; m_01 = 1; m_10 = 1;
     # (m_11) / (m_11 + m_01 + m_10) #=> 0.5
     it "should give the tanimoto coefficient for two vectors" do
-      @lolz_catz.closeness(@eatin_ur_foodz).should == 0.6
+      @lolz_catz.similarity(@eatin_ur_foodz).should == 0.6
     end
     
     it "should return 1.0 as the closeness for identical vectors" do
       lolz_clone = @lolz_catz.clone # make sure we're not comparing object identity
-      @lolz_catz.closeness(lolz_clone).should == 1.0
+      @lolz_catz.similarity(lolz_clone).should == 1.0
     end
     
     it "should give a distance measurement using the hamming distance" do

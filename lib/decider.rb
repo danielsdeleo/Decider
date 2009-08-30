@@ -3,6 +3,7 @@
 require "stemmer"
 #require "bloomfilter" # igrigorik-bloomfilter-0.1.1 (1.8.x) || rjspotter-bloomfilter (1.9.x)
 require "moneta"
+require "moneta/memory"
 
 unless defined?(DECIDER_ROOT)
   DECIDER_ROOT = File.dirname(__FILE__) + '/decider/'

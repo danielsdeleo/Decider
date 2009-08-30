@@ -3,24 +3,38 @@
 module Decider
   module Vectors
     class SparseBinary < AbstractBase
-      attr_accessor :sparse_vector, :vector_size
+      attr_accessor :vector_size
       
-      def initialize(token_index_hsh=nil)
-        super
-        @sparse_vector = []
+      # For binary vectors, the Tanimoto coefficient is used.
+      # http://en.wikipedia.org/wiki/Jaccard_index
+      similarities do |other|
+        # unoptimized implementation:
+        # items_in_both = (@vector & other.vector).size
+        # items_in_self_only = (@vector - other.vector).length
+        # items_in_other_only = (other.vector - @vector).length
+        # items_in_both.to_f / (items_in_both + items_in_self_only + items_in_other_only)
+        if self == other
+          1.0
+        else
+          items_in_both = (@vector & other.vector).size
+          items_in_both.to_f / (vector_size + other.vector_size - items_in_both)
+        end
       end
       
-      def ==(other_vector)
-        @sparse_vector == other_vector.sparse_vector
+      distances do |other|
+        return 0 if self == other
+        (@vector - other.vector).length + (other.vector - @vector).length
       end
       
-      def duplicated
-        @sparse_vector = @sparse_vector.dup
+      averages do |other|
+        new_vector = duplicate
+        new_vector.vector = @vector & other.vector
+        new_vector
       end
       
       def to_a
         vector = Array.new(token_indices.length, 0)
-        @sparse_vector.each do |index|
+        @vector.each do |index|
           vector[index] = 1
         end
         vector
@@ -29,35 +43,10 @@ module Decider
       def convert_document(document)
         document.tokens.each do |t|
           if i = index_of[t]
-            @sparse_vector << i
+            @vector << i
           end
         end
-        @vector_size ||= @sparse_vector.size
-      end
-      
-      # For binary vectors, the Tanimoto coefficient is used.
-      # http://en.wikipedia.org/wiki/Jaccard_index
-      def closeness(other)
-        # unoptimized implementation:
-        # items_in_both = (@sparse_vector & other.sparse_vector).size
-        # items_in_self_only = (@sparse_vector - other.sparse_vector).length
-        # items_in_other_only = (other.sparse_vector - @sparse_vector).length
-        # items_in_both.to_f / (items_in_both + items_in_self_only + items_in_other_only)
-        return 1.0 if self == other
-        items_in_both = (@sparse_vector & other.sparse_vector).size
-        items_in_both.to_f / (vector_size + other.vector_size - items_in_both)
-      end
-      
-      def distance(other)
-        return 0 if self == other
-        (@sparse_vector - other.sparse_vector).length + (other.sparse_vector - @sparse_vector).length
-      end
-      
-      def average(other)
-        new_sparse_vector_ary = @sparse_vector & other.sparse_vector
-        new_vector = duplicate
-        new_vector.sparse_vector = new_sparse_vector_ary
-        new_vector
+        @vector_size ||= @vector.size
       end
       
     end

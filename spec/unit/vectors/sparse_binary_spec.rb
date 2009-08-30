@@ -31,11 +31,6 @@ describe Vectors::SparseBinary do
       @vector_a.distance(@vector_b).should == 15
     end
     
-    it "should determine equality using the sparse vectors" do
-      (@vector_a == @vector_a_clone).should be_true
-      (@vector_a == @vector_b).should be_false
-    end
-    
     it "should give its vector's size (and cache it)" do
       @vector_a.vector_size.should == 15
       @vector_b.vector_size.should == 2

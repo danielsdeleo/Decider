@@ -54,7 +54,7 @@ module Decider
       def index_of_child_closest_to(node)
         index_of_closest_node, best_distance_measure = 0, 0.0
         @children.size.times do |i|
-          distance_measure = @children[i].vector.closeness(node.vector)
+          distance_measure = @children[i].vector.similarity(node.vector)
           if distance_measure > best_distance_measure
             best_distance_measure = distance_measure
             index_of_closest_node = i
