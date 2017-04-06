@@ -8,7 +8,7 @@ There are other ruby machine learning libraries out there:
 * More?
 
 So why another one?
-* You can install it and try it in irb right away. You don't need to learn how a half-dozen classes work to get started:
+* You can install it and try it on irb right away. You do not need to learn how a half-dozen classes work to get started:
         c = Decider.classifier(:spam, :ham)
         c.spam << "some spammy text"
         c.ham << "some hammy goodness"
